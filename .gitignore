@@ -1,0 +1,97 @@
+# Visual Studio 文件和目录
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+
+# Visual Studio 构建结果
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio 缓存/选项文件
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Visual C++ 编译文件
+*.obj
+*.exe
+*.dll
+*.lib
+*.exp
+*.ilk
+*.pdb
+*.idb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Visual Studio 临时文件
+*.tlog
+*.lastbuildstate
+*.recipe
+*.cache
+*.ilk
+*.pch
+*.pdb
+*.idb
+*.ipdb
+
+# Visual Studio 资源文件
+*.aps
+*.res
+*.rc2
+
+# 其他临时文件
+*.tmp
+*.temp
+*~
+*.swp
+*.bak
+*.cache
+
+# 压缩文件（如果不需要版本控制）
+*.zip
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
