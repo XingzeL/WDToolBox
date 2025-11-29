@@ -6,23 +6,17 @@ struct WorkLogEntry
 {
 	CString content;
 	time_t time;
-};
+}; //±£¡Ù
 
 class CWorkLogWriter :
     public CExecutor
 {
 public:
-	CWorkLogWriter();
-	virtual ~CWorkLogWriter();
+	CWorkLogWriter() {};
+	virtual ~CWorkLogWriter() {};
 
 	virtual BOOL Execute(const CString& strContent);
-
-	void AddLog(const CString& strContent);
-	void GetAllLogs(std::vector<WorkLogEntry>& logs);
-	void SaveLogs();
-	void LoadLogs();
-
 private:
-	std::vector<WorkLogEntry> m_logs;
+	std::vector<CString> m_logs;
 };
 

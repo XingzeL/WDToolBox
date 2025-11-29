@@ -5,6 +5,7 @@
 
 #include "ToolInfo.h"
 #include "ProcessLauncher.h"
+#include "WorkLogManager.h"
 #include "WorkLogWriter.h"
 
 // CWDToolBoxDlg 对话框
@@ -36,19 +37,19 @@ protected:
 	CStatic m_splitter;          // 分割条（用于调整左右控件宽度）
 
 	// 工作日志分页控件
-	CListCtrl m_listWorkLog;     // 工作日志列表
-	CEdit m_editWorkLog;         // 工作日志编辑框
-	CButton m_btnAddLog;         // 添加日志按钮
-	CButton m_btnSaveLog;        // 保存日志按钮
+	CListCtrl m_listLogCategory; // 左侧日志分类列表
+	CListCtrl m_listLogLibrary;  // 右侧日志库列表
+	CStatic m_logSplitter;       // 日志分页的分割条
 
 	CImageList m_imageList;      // 图标图像列表
 
 	// 管理器
 	CToolManager m_toolManager;
+	CWorkLogManager m_workLogger;
 
 	CProcessLauncher m_launcher;
-	CWorkLogWriter m_workLogger;
-
+	CWorkLogWriter m_workLogWriter;
+	
 	// 布局参数
 	int m_nCategoryListWidth;    // 左侧分类列表宽度（可调整）
 	BOOL m_bDragging;             // 是否正在拖动分割条
@@ -63,22 +64,22 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnLvnItemchangedCategoryList(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnNMDblclkToolList(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnLvnItemchangedLogCategoryList(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnNMDblclkLogLibraryList(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnCaptureChanged(CWnd* pWnd);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnBnClickedBtnAddLog();
-	afx_msg void OnBnClickedBtnSaveLog();
 
 	// 辅助函数
 	void InitializeControls();
 	void LoadToolCategories();
 	void UpdateToolList(const CString& strCategory);
-	void InitializeWorkLogPage();
+	void LoadLogCategories();
+	void UpdateLogLibraryList(const CString& strCategory);
 	void ShowTabPage(int nPage);
-	void LoadWorkLogData();
-	void SaveWorkLogData();
 
 	DECLARE_MESSAGE_MAP()
 };
