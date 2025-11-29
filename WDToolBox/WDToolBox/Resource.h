@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ Éú³ÉµÄ°üº¬ÎÄ¼þ¡£
-// ¹© WDToolBox.rc Ê¹ÓÃ
+// Microsoft Visual C++ ï¿½ï¿½ï¿½ÉµÄ°ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
+// ï¿½ï¿½ WDToolBox.rc Ê¹ï¿½ï¿½
 //
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
@@ -20,6 +20,11 @@
 #define IDC_LOG_CATEGORY_LIST           1008
 #define IDC_LOG_LIBRARY_LIST            1009
 #define IDC_LOG_SPLITTER                1010
+#define IDC_TASKTYPE                    1011
+#define IDC_EDITLIBNAME                 1012
+#define IDC_TASKNATURE                   1013
+#define IDC_TIMEUSED                    1014
+#define IDC_WORKDESC                    1015
 
 // Next default values for new objects
 // 
@@ -27,7 +32,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1010
+#define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

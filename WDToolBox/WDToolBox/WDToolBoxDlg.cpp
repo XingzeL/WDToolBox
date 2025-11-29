@@ -633,6 +633,11 @@ void CWDToolBoxDlg::ShowTabPage(int nPage)
 // 加载日志分类
 void CWDToolBoxDlg::LoadLogCategories()
 {
+    // 先清空现有数据，避免重复添加
+    m_workLogger.Clear();
+    m_listLogCategory.DeleteAllItems();
+    m_listLogLibrary.DeleteAllItems();
+
     // 从配置文件加载日志库，如果失败则使用默认配置
     if (!m_workLogger.LoadFromConfig(_T("")))
     {
@@ -644,8 +649,6 @@ void CWDToolBoxDlg::LoadLogCategories()
     // 填充分类列表
     std::vector<CString> categories;
     m_workLogger.GetAllCategories(categories);
-
-    m_listLogCategory.DeleteAllItems();
     for (size_t i = 0; i < categories.size(); i++)
     {
         int nIndex = m_listLogCategory.InsertItem((int)i, categories[i]);
@@ -699,8 +702,15 @@ void CWDToolBoxDlg::OnNMDblclkLogLibraryList(NMHDR* pNMHDR, LRESULT* pResult)
 		CWriteWorkLogDlg dlg(this);
 		dlg.SetProjectInfo(strProjectInfo);
 		dlg.SetLibraryInfo(strLibraryInfo);
-		dlg.DoModal();	
-		m_workLogWriter.Execute(dlg.GetLogContent());
+		if (dlg.DoModal() == IDOK)
+		{
+			CString strLogContent = dlg.GetLogContent();
+			// 只有当日志内容不为空时才写入
+			if (!strLogContent.IsEmpty())
+			{
+				m_workLogWriter.Execute(strLogContent);
+			}
+		}
     }
 
     *pResult = 0;
