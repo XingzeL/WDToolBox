@@ -1,5 +1,4 @@
-ï»¿
-// WDToolBoxDlg.cpp: å®ç°æ–‡ä»¶
+// WDToolBoxDlg.cpp: ÊµÏÖÎÄ¼ş
 //
 
 #include "pch.h"
@@ -18,24 +17,24 @@
 #endif
 
 
-// ç”¨äºåº”ç”¨ç¨‹åºâ€œå…³äºâ€èœå•é¡¹çš„ CAboutDlg å¯¹è¯æ¡†
+// ÓÃÓÚÓ¦ÓÃ³ÌĞò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
 
 class CAboutDlg : public CDialogEx
 {
 public:
-	CAboutDlg();
+    CAboutDlg();
 
-// å¯¹è¯æ¡†æ•°æ®
+// ¶Ô»°¿òÊı¾İ
 #ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_ABOUTBOX };
+    enum { IDD = IDD_ABOUTBOX };
 #endif
 
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV æ”¯æŒ
-
-// å®ç°
 protected:
-	DECLARE_MESSAGE_MAP()
+    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
+
+// ÊµÏÖ
+protected:
+    DECLARE_MESSAGE_MAP()
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
@@ -44,772 +43,563 @@ CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialogEx::DoDataExchange(pDX);
+    CDialogEx::DoDataExchange(pDX);
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CWDToolBoxDlg å¯¹è¯æ¡†
-
+// CWDToolBoxDlg ¶Ô»°¿ò
 
 
 CWDToolBoxDlg::CWDToolBoxDlg(CWnd* pParent /*=nullptr*/)
-	: CDialogEx(IDD_WDTOOLBOX_DIALOG, pParent)
+    : CDialogEx(IDD_WDTOOLBOX_DIALOG, pParent)
 {
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_nCategoryListWidth = 200;  // é»˜è®¤å·¦ä¾§åˆ—è¡¨å®½åº¦
-	m_bDragging = FALSE;
-	m_nDragStartX = 0;
-	m_nDragStartWidth = 200;
+    m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+    m_nCategoryListWidth = 200;  // Ä¬ÈÏ×ó²àÁĞ±í¿í¶È
+    m_bDragging = FALSE;
+    m_nDragStartX = 0;
+    m_nDragStartWidth = 200;
 }
 
 void CWDToolBoxDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialogEx::DoDataExchange(pDX);
-	// æ³¨æ„ï¼šæ§ä»¶æ˜¯é€šè¿‡ä»£ç åŠ¨æ€åˆ›å»ºçš„ï¼Œä¸éœ€è¦ä½¿ç”¨DDX_Control
-	// DDX_Control(pDX, IDC_CATEGORY_LIST, m_listCategory);
-	// DDX_Control(pDX, IDC_TOOL_LIST, m_listTool);
+    CDialogEx::DoDataExchange(pDX);
+    // ×¢Òâ£º¿Ø¼şÊÇÍ¨¹ı´úÂë¶¯Ì¬´´½¨µÄ£¬²»ĞèÒªÊ¹ÓÃ DDX_Control
+    // DDX_Control(pDX, IDC_CATEGORY_LIST, m_listCategory);
+    // DDX_Control(pDX, IDC_TOOL_LIST, m_listTool);
 }
 
 BEGIN_MESSAGE_MAP(CWDToolBoxDlg, CDialogEx)
-	ON_WM_SYSCOMMAND()
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_WM_SIZE()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_MOUSEMOVE()
-	ON_WM_LBUTTONUP()
-	ON_WM_SETCURSOR()
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_CATEGORY_LIST, &CWDToolBoxDlg::OnLvnItemchangedCategoryList)
-	ON_NOTIFY(NM_DBLCLK, IDC_TOOL_LIST, &CWDToolBoxDlg::OnNMDblclkToolList)
-	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_MAIN, &CWDToolBoxDlg::OnTcnSelchangeTabMain)
-	ON_BN_CLICKED(IDC_BTN_ADD_LOG, &CWDToolBoxDlg::OnBnClickedBtnAddLog)
-	ON_BN_CLICKED(IDC_BTN_SAVE_LOG, &CWDToolBoxDlg::OnBnClickedBtnSaveLog)
+    ON_WM_SYSCOMMAND()
+    ON_WM_PAINT()
+    ON_WM_QUERYDRAGICON()
+    ON_WM_SIZE()
+    ON_WM_LBUTTONDOWN()
+    ON_WM_MOUSEMOVE()
+    ON_WM_LBUTTONUP()
+    ON_WM_SETCURSOR()
+    ON_NOTIFY(LVN_ITEMCHANGED, IDC_CATEGORY_LIST, &CWDToolBoxDlg::OnLvnItemchangedCategoryList)
+    ON_NOTIFY(NM_DBLCLK, IDC_TOOL_LIST, &CWDToolBoxDlg::OnNMDblclkToolList)
+    ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_MAIN, &CWDToolBoxDlg::OnTcnSelchangeTabMain)
+    ON_BN_CLICKED(IDC_BTN_ADD_LOG, &CWDToolBoxDlg::OnBnClickedBtnAddLog)
+    ON_BN_CLICKED(IDC_BTN_SAVE_LOG, &CWDToolBoxDlg::OnBnClickedBtnSaveLog)
 END_MESSAGE_MAP()
 
 
-// CWDToolBoxDlg æ¶ˆæ¯å¤„ç†ç¨‹åº
+// CWDToolBoxDlg ÏûÏ¢´¦Àí³ÌĞò
 
 BOOL CWDToolBoxDlg::OnInitDialog()
 {
-	CDialogEx::OnInitDialog();
+    CDialogEx::OnInitDialog();
 
-	// å°†â€œå…³äº...â€èœå•é¡¹æ·»åŠ åˆ°ç³»ç»Ÿèœå•ä¸­ã€‚
+    // ½«¡°¹ØÓÚ...¡±²Ëµ¥ÏîÌí¼Óµ½ÏµÍ³²Ëµ¥ÖĞ¡£
 
-	// IDM_ABOUTBOX å¿…é¡»åœ¨ç³»ç»Ÿå‘½ä»¤èŒƒå›´å†…ã€‚
-	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
-	ASSERT(IDM_ABOUTBOX < 0xF000);
+    // IDM_ABOUTBOX ±ØĞëÔÚÏµÍ³ÃüÁî·¶Î§ÄÚ¡£
+    ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
+    ASSERT(IDM_ABOUTBOX < 0xF000);
 
-	CMenu* pSysMenu = GetSystemMenu(FALSE);
-	if (pSysMenu != nullptr)
-	{
-		BOOL bNameValid;
-		CString strAboutMenu;
-		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
-		ASSERT(bNameValid);
-		if (!strAboutMenu.IsEmpty())
-		{
-			pSysMenu->AppendMenu(MF_SEPARATOR);
-			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
-		}
-	}
+    CMenu* pSysMenu = GetSystemMenu(FALSE);
+    if (pSysMenu != nullptr)
+    {
+        BOOL bNameValid;
+        CString strAboutMenu;
+        bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
+        ASSERT(bNameValid);
+        if (!strAboutMenu.IsEmpty())
+        {
+            pSysMenu->AppendMenu(MF_SEPARATOR);
+            pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
+        }
+    }
 
-	// è®¾ç½®æ­¤å¯¹è¯æ¡†çš„å›¾æ ‡ã€‚  å½“åº”ç”¨ç¨‹åºä¸»çª—å£ä¸æ˜¯å¯¹è¯æ¡†æ—¶ï¼Œæ¡†æ¶å°†è‡ªåŠ¨
-	//  æ‰§è¡Œæ­¤æ“ä½œ
-	SetIcon(m_hIcon, TRUE);			// è®¾ç½®å¤§å›¾æ ‡
-	SetIcon(m_hIcon, FALSE);		// è®¾ç½®å°å›¾æ ‡
+    // ÉèÖÃ´Ë¶Ô»°¿òµÄÍ¼±ê¡£µ±Ó¦ÓÃ³ÌĞòÖ÷´°¿Ú²»ÊÇ¶Ô»°¿òÊ±£¬¿ò¼Ü½«×Ô¶¯
+    // Ö´ĞĞ´Ë²Ù×÷
+    SetIcon(m_hIcon, TRUE);   // ÉèÖÃ´óÍ¼±ê
+    SetIcon(m_hIcon, FALSE);  // ÉèÖÃĞ¡Í¼±ê
 
-	// ä½¿å¯¹è¯æ¡†å¯ä»¥è°ƒæ•´å¤§å°ï¼Œå¹¶æ·»åŠ æœ€å°åŒ–å’Œæœ€å¤§åŒ–æŒ‰é’®
-	ModifyStyle(0, WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
+    // Ê¹¶Ô»°¿ò¿ÉÒÔµ÷Õû´óĞ¡£¬²¢Ìí¼Ó×îĞ¡»¯ºÍ×î´ó»¯°´Å¥
+    ModifyStyle(0, WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
 
-	// éšè—ä¸éœ€è¦çš„ç¡®å®šå’Œå–æ¶ˆæŒ‰é’®
-	CWnd* pOkBtn = GetDlgItem(IDOK);
-	if (pOkBtn != nullptr)
-	{
-		pOkBtn->ShowWindow(SW_HIDE);
-	}
-	CWnd* pCancelBtn = GetDlgItem(IDCANCEL);
-	if (pCancelBtn != nullptr)
-	{
-		pCancelBtn->ShowWindow(SW_HIDE);
-	}
+    // Òş²Ø²»ĞèÒªµÄÈ·¶¨ºÍÈ¡Ïû°´Å¥
+    CWnd* pOkBtn = GetDlgItem(IDOK);
+    if (pOkBtn != nullptr)
+    {
+        pOkBtn->ShowWindow(SW_HIDE);
+    }
+    CWnd* pCancelBtn = GetDlgItem(IDCANCEL);
+    if (pCancelBtn != nullptr)
+    {
+        pCancelBtn->ShowWindow(SW_HIDE);
+    }
 
-	// åˆå§‹åŒ–æ§ä»¶
-	InitializeControls();
+    // ³õÊ¼»¯¿Ø¼ş
+    InitializeControls();
 
-	// åŠ è½½å·¥å…·åˆ†ç±»
-	LoadToolCategories();
+    // ¼ÓÔØ¹¤¾ß·ÖÀà
+    LoadToolCategories();
 
-	return TRUE;  // é™¤éå°†ç„¦ç‚¹è®¾ç½®åˆ°æ§ä»¶ï¼Œå¦åˆ™è¿”å› TRUE
+    return TRUE;  // ³ı·Ç½«½¹µãÉèÖÃµ½¿Ø¼ş£¬·ñÔò·µ»Ø TRUE
 }
 
 void CWDToolBoxDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
-	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-	{
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
-	}
-	else
-	{
-		CDialogEx::OnSysCommand(nID, lParam);
-	}
+    if ((nID & 0xFFF0) == IDM_ABOUTBOX)
+    {
+        CAboutDlg dlgAbout;
+        dlgAbout.DoModal();
+    }
+    else
+    {
+        CDialogEx::OnSysCommand(nID, lParam);
+    }
 }
 
-// å¦‚æœå‘å¯¹è¯æ¡†æ·»åŠ æœ€å°åŒ–æŒ‰é’®ï¼Œåˆ™éœ€è¦ä¸‹é¢çš„ä»£ç 
-//  æ¥ç»˜åˆ¶è¯¥å›¾æ ‡ã€‚  å¯¹äºä½¿ç”¨æ–‡æ¡£/è§†å›¾æ¨¡å‹çš„ MFC åº”ç”¨ç¨‹åºï¼Œ
-//  è¿™å°†ç”±æ¡†æ¶è‡ªåŠ¨å®Œæˆã€‚
+// Èç¹ûÏò¶Ô»°¿òÌí¼Ó×îĞ¡»¯°´Å¥£¬ÔòĞèÒªÏÂÃæµÄ´úÂë
+// À´»æÖÆ¸ÃÍ¼±ê¡£¶ÔÓÚÊ¹ÓÃÎÄµµ/ÊÓÍ¼Ä£ĞÍµÄ MFC Ó¦ÓÃ³ÌĞò£¬
+// Õâ½«ÓÉ¿ò¼Ü×Ô¶¯Íê³É¡£
 
 void CWDToolBoxDlg::OnPaint()
 {
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // ç”¨äºç»˜åˆ¶çš„è®¾å¤‡ä¸Šä¸‹æ–‡
+    if (IsIconic())
+    {
+        CPaintDC dc(this); // ÓÃÓÚ»æÖÆµÄÉè±¸ÉÏÏÂÎÄ
 
-		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+        SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// ä½¿å›¾æ ‡åœ¨å·¥ä½œåŒºçŸ©å½¢ä¸­å±…ä¸­
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
+        // Ê¹Í¼±êÔÚ¹¤×÷Çø¾ØĞÎÖĞ¾ÓÖĞ
+        int cxIcon = GetSystemMetrics(SM_CXICON);
+        int cyIcon = GetSystemMetrics(SM_CYICON);
+        CRect rect;
+        GetClientRect(&rect);
+        int x = (rect.Width() - cxIcon + 1) / 2;
+        int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// ç»˜åˆ¶å›¾æ ‡
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CDialogEx::OnPaint();
-	}
+        // »æÖÆÍ¼±ê
+        dc.DrawIcon(x, y, m_hIcon);
+    }
+    else
+    {
+        CDialogEx::OnPaint();
+    }
 }
 
-//å½“ç”¨æˆ·æ‹–åŠ¨æœ€å°åŒ–çª—å£æ—¶ç³»ç»Ÿè°ƒç”¨æ­¤å‡½æ•°å–å¾—å…‰æ ‡
-//æ˜¾ç¤ºã€‚
+//µ±ÓÃ»§ÍÏ¶¯×îĞ¡»¯´°¿ÚÊ±ÏµÍ³µ÷ÓÃ´Ëº¯ÊıÈ¡µÃ¹â±ê
+//ÏÔÊ¾¡£
 HCURSOR CWDToolBoxDlg::OnQueryDragIcon()
 {
-	return static_cast<HCURSOR>(m_hIcon);
+    return static_cast<HCURSOR>(m_hIcon);
 }
 
-// åˆå§‹åŒ–æ§ä»¶
+// ³õÊ¼»¯¿Ø¼ş
 void CWDToolBoxDlg::InitializeControls()
 {
-	CRect rect;
-	GetClientRect(&rect);
+    CRect rect;
+    GetClientRect(&rect);
 
-	// åˆ›å»ºæ ‡ç­¾é¡µæ§ä»¶
-	CRect rectTab(10, 10, rect.Width() - 10, rect.Height() - 10);
-	m_tabCtrl.Create(WS_CHILD | WS_VISIBLE | TCS_TABS | TCS_FOCUSNEVER,
-		rectTab, this, IDC_TAB_MAIN);
-	m_tabCtrl.InsertItem(0, _T("ToolBox"));
-	m_tabCtrl.InsertItem(1, _T("WorkLog"));
+    // ´´½¨±êÇ©Ò³¿Ø¼ş
+    CRect rectTab(10, 10, rect.Width() - 10, rect.Height() - 10);
+    m_tabCtrl.Create(WS_CHILD | WS_VISIBLE | TCS_TABS | TCS_FOCUSNEVER,
+        rectTab, this, IDC_TAB_MAIN);
+    m_tabCtrl.InsertItem(0, _T("¹¤¾ß¹ÜÀíÆ÷"));
+    m_tabCtrl.InsertItem(1, _T("¹¤×÷ÈÕÖ¾"));
 
-	// åˆ›å»ºå·¥å…·ç®¡ç†å™¨åˆ†é¡µæ§ä»¶
-	CRect rectPage;
-	m_tabCtrl.GetClientRect(&rectPage);
-	m_tabCtrl.AdjustRect(FALSE, &rectPage);
-	rectPage.OffsetRect(10, 35); // ç›¸å¯¹äºæ ‡ç­¾é¡µçš„åç§»
-	rectPage.right -= 10;
-	rectPage.bottom -= 10;
+    // ´´½¨¹¤¾ß¹ÜÀíÆ÷·ÖÒ³¿Ø¼ş
+    CRect rectPage;
+    m_tabCtrl.GetClientRect(&rectPage);
+    m_tabCtrl.AdjustRect(FALSE, &rectPage);
+    rectPage.OffsetRect(10, 35); // Ïà¶ÔÓÚ±êÇ©Ò³µÄÆ«ÒÆ
+    rectPage.right -= 10;
+    rectPage.bottom -= 10;
 
-	// å·¦ä¾§åˆ†ç±»åˆ—è¡¨
-	CRect rectCategory(rectPage.left, rectPage.top,
-		rectPage.left + m_nCategoryListWidth, rectPage.bottom);
-	m_listCategory.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
-		rectCategory, this, IDC_CATEGORY_LIST);
-	m_listCategory.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_listCategory.InsertColumn(0, _T("å·¥å…·åˆ†ç±»"), LVCFMT_LEFT, m_nCategoryListWidth - 20);
+    // ×ó²à·ÖÀàÁĞ±í
+    CRect rectCategory(rectPage.left, rectPage.top,
+        rectPage.left + m_nCategoryListWidth, rectPage.bottom);
+    m_listCategory.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
+        rectCategory, this, IDC_CATEGORY_LIST);
+    m_listCategory.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+    m_listCategory.InsertColumn(0, _T("¹¤¾ß·ÖÀà"), LVCFMT_LEFT, m_nCategoryListWidth - 20);
 
-	// åˆ†å‰²æ¡
-	CRect rectSplitter(rectCategory.right, rectPage.top, rectCategory.right + 4, rectPage.bottom);
-	m_splitter.Create(_T(""), WS_CHILD | WS_VISIBLE | SS_NOTIFY | SS_BLACKRECT,
-		rectSplitter, this, IDC_SPLITTER);
+    // ·Ö¸îÌõ
+    CRect rectSplitter(rectCategory.right, rectPage.top, rectCategory.right + 4, rectPage.bottom);
+    m_splitter.Create(_T(""), WS_CHILD | WS_VISIBLE | SS_NOTIFY | SS_BLACKRECT,
+        rectSplitter, this, IDC_SPLITTER);
 
-	// å³ä¾§å·¥å…·åˆ—è¡¨
-	CRect rectTool(rectSplitter.right + 6, rectPage.top, rectPage.right, rectPage.bottom);
-	m_listTool.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_ICON | LVS_AUTOARRANGE,
-		rectTool, this, IDC_TOOL_LIST);
-	m_listTool.SetExtendedStyle(LVS_EX_DOUBLEBUFFER);
+    // ÓÒ²à¹¤¾ßÁĞ±í
+    CRect rectTool(rectSplitter.right + 6, rectPage.top, rectPage.right, rectPage.bottom);
+    m_listTool.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_ICON | LVS_AUTOARRANGE,
+        rectTool, this, IDC_TOOL_LIST);
+    m_listTool.SetExtendedStyle(LVS_EX_DOUBLEBUFFER);
 
-	// åˆ›å»ºå·¥ä½œæ—¥å¿—åˆ†é¡µæ§ä»¶ï¼ˆåˆå§‹éšè—ï¼‰
-	CRect rectWorkLog(rectPage);
-	m_listWorkLog.Create(WS_CHILD | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
-		CRect(rectWorkLog.left, rectWorkLog.top, rectWorkLog.right, rectWorkLog.bottom - 100),
-		this, IDC_WORKLOG_LIST);
-	m_listWorkLog.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_listWorkLog.InsertColumn(0, _T("æ—¶é—´"), LVCFMT_LEFT, 150);
-	m_listWorkLog.InsertColumn(1, _T("å†…å®¹"), LVCFMT_LEFT, rectWorkLog.Width() - 170);
+    // ´´½¨¹¤×÷ÈÕÖ¾·ÖÒ³¿Ø¼ş£¨³õÊ¼Òş²Ø£©
+    CRect rectWorkLog(rectPage);
+    m_listWorkLog.Create(WS_CHILD | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
+        CRect(rectWorkLog.left, rectWorkLog.top, rectWorkLog.right, rectWorkLog.bottom - 100),
+        this, IDC_WORKLOG_LIST);
+    m_listWorkLog.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+    m_listWorkLog.InsertColumn(0, _T("Ê±¼ä"), LVCFMT_LEFT, 150);
+    m_listWorkLog.InsertColumn(1, _T("ÄÚÈİ"), LVCFMT_LEFT, rectWorkLog.Width() - 170);
 
-	m_editWorkLog.Create(WS_CHILD | WS_BORDER | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
-		CRect(rectWorkLog.left, rectWorkLog.bottom - 95, rectWorkLog.right - 120, rectWorkLog.bottom - 40),
-		this, IDC_WORKLOG_EDIT);
+    m_editWorkLog.Create(WS_CHILD | WS_BORDER | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
+        CRect(rectWorkLog.left, rectWorkLog.bottom - 95, rectWorkLog.right - 120, rectWorkLog.bottom - 40),
+        this, IDC_WORKLOG_EDIT);
 
-	m_btnAddLog.Create(_T("æ·»åŠ æ—¥å¿—"), WS_CHILD | BS_PUSHBUTTON,
-		CRect(rectWorkLog.right - 110, rectWorkLog.bottom - 95, rectWorkLog.right - 10, rectWorkLog.bottom - 70),
-		this, IDC_BTN_ADD_LOG);
+    m_btnAddLog.Create(_T("Ìí¼ÓÈÕÖ¾"), WS_CHILD | BS_PUSHBUTTON,
+        CRect(rectWorkLog.right - 110, rectWorkLog.bottom - 95, rectWorkLog.right - 10, rectWorkLog.bottom - 70),
+        this, IDC_BTN_ADD_LOG);
 
-	m_btnSaveLog.Create(_T("ä¿å­˜æ—¥å¿—"), WS_CHILD | BS_PUSHBUTTON,
-		CRect(rectWorkLog.right - 110, rectWorkLog.bottom - 65, rectWorkLog.right - 10, rectWorkLog.bottom - 40),
-		this, IDC_BTN_SAVE_LOG);
+    m_btnSaveLog.Create(_T("±£´æÈÕÖ¾"), WS_CHILD | BS_PUSHBUTTON,
+        CRect(rectWorkLog.right - 110, rectWorkLog.bottom - 65, rectWorkLog.right - 10, rectWorkLog.bottom - 40),
+        this, IDC_BTN_SAVE_LOG);
 
-	// åˆå§‹æ˜¾ç¤ºç¬¬ä¸€ä¸ªåˆ†é¡µ
-	ShowTabPage(0);
+    // ³õÊ¼ÏÔÊ¾µÚÒ»¸ö·ÖÒ³
+    ShowTabPage(0);
 }
 
-// ä»é…ç½®æ–‡ä»¶åŠ è½½å·¥å…·
-void CWDToolBoxDlg::LoadToolsFromConfig(const CString& strConfigPath)
-{
-	// è·å–é…ç½®æ–‡ä»¶è·¯å¾„ï¼ˆå¦‚æœæœªæŒ‡å®šï¼Œä½¿ç”¨ç¨‹åºç›®å½•ä¸‹çš„ tools.iniï¼‰
-	CString strIniPath = strConfigPath;
-	if (strIniPath.IsEmpty())
-	{
-		TCHAR szModulePath[MAX_PATH];
-		GetModuleFileName(NULL, szModulePath, MAX_PATH);
-		CString strModulePath = szModulePath;
-		int nPos = strModulePath.ReverseFind(_T('\\'));
-		if (nPos >= 0)
-		{
-			strIniPath = strModulePath.Left(nPos + 1) + _T("tools.ini");
-		}
-		else
-		{
-			strIniPath = _T("tools.ini");
-		}
-	}
 
-	// æ£€æŸ¥é…ç½®æ–‡ä»¶æ˜¯å¦å­˜åœ¨
-	if (!PathFileExists(strIniPath))
-	{
-		// å¦‚æœé…ç½®æ–‡ä»¶ä¸å­˜åœ¨ï¼Œä½¿ç”¨é»˜è®¤é…ç½®
-		MessageBox(_T("é…ç½®æ–‡ä»¶ä¸å­˜åœ¨ï¼Œå°†ä½¿ç”¨é»˜è®¤é…ç½®ã€‚\né…ç½®æ–‡ä»¶è·¯å¾„ï¼š") + strIniPath, 
-			_T("æç¤º"), MB_OK | MB_ICONINFORMATION);
-		return;
-	}
-
-	// è°ƒè¯•ï¼šæ˜¾ç¤ºé…ç½®æ–‡ä»¶è·¯å¾„ï¼ˆå¯ä»¥æ³¨é‡Šæ‰ï¼‰
-	// MessageBox(_T("æ­£åœ¨è¯»å–é…ç½®æ–‡ä»¶ï¼š\n") + strIniPath, _T("è°ƒè¯•"), MB_OK);
-
-	// è¯»å–UTF-8ç¼–ç çš„æ–‡ä»¶å†…å®¹ï¼ˆæ”¯æŒUnicodeå’Œå¤šå­—èŠ‚å­—ç¬¦é›†ï¼‰
-	HANDLE hFile = CreateFile(strIniPath, GENERIC_READ, FILE_SHARE_READ, NULL, 
-		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		MessageBox(_T("æ— æ³•æ‰“å¼€é…ç½®æ–‡ä»¶ã€‚"), _T("é”™è¯¯"), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	// è·å–æ–‡ä»¶å¤§å°
-	DWORD dwFileSize = GetFileSize(hFile, NULL);
-	if (dwFileSize == 0 || dwFileSize > 1024 * 1024) // é™åˆ¶æœ€å¤§1MB
-	{
-		CloseHandle(hFile);
-		MessageBox(_T("é…ç½®æ–‡ä»¶å¤§å°æ— æ•ˆã€‚"), _T("é”™è¯¯"), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	// è¯»å–æ–‡ä»¶å†…å®¹
-	char* pBuffer = new char[dwFileSize + 1];
-	DWORD dwBytesRead = 0;
-	if (!ReadFile(hFile, pBuffer, dwFileSize, &dwBytesRead, NULL))
-	{
-		delete[] pBuffer;
-		CloseHandle(hFile);
-		MessageBox(_T("è¯»å–é…ç½®æ–‡ä»¶å¤±è´¥ã€‚"), _T("é”™è¯¯"), MB_OK | MB_ICONERROR);
-		return;
-	}
-	pBuffer[dwBytesRead] = 0;
-	CloseHandle(hFile);
-
-	// æ£€æµ‹å¹¶è·³è¿‡BOMï¼ˆUTF-8 BOM: EF BB BFï¼‰
-	int nStartPos = 0;
-	if (dwBytesRead >= 3 && (unsigned char)pBuffer[0] == 0xEF && 
-		(unsigned char)pBuffer[1] == 0xBB && (unsigned char)pBuffer[2] == 0xBF)
-	{
-		nStartPos = 3;
-	}
-
-	// å°†UTF-8è½¬æ¢ä¸ºå®½å­—ç¬¦ï¼ˆUnicodeï¼‰æˆ–å¤šå­—èŠ‚å­—ç¬¦
-#ifdef _UNICODE
-	// Unicodeæ¨¡å¼ï¼šUTF-8 -> wchar_t
-	int nWideLen = MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos, 
-		dwBytesRead - nStartPos, NULL, 0);
-	if (nWideLen <= 0)
-	{
-		delete[] pBuffer;
-		MessageBox(_T("é…ç½®æ–‡ä»¶ç¼–ç é”™è¯¯ï¼ˆéœ€è¦UTF-8ç¼–ç ï¼‰ã€‚"), _T("é”™è¯¯"), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	wchar_t* pWideBuffer = new wchar_t[nWideLen + 1];
-	MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos, dwBytesRead - nStartPos, 
-		pWideBuffer, nWideLen);
-	pWideBuffer[nWideLen] = 0;
-	delete[] pBuffer;
-
-	// è§£æINIæ–‡ä»¶å†…å®¹
-	CString strContent = pWideBuffer;
-	delete[] pWideBuffer;
-#else
-	// å¤šå­—èŠ‚æ¨¡å¼ï¼šUTF-8 -> å¤šå­—èŠ‚å­—ç¬¦ï¼ˆGBKï¼‰
-	// å…ˆè½¬æ¢ä¸ºUnicodeï¼Œå†è½¬æ¢ä¸ºå¤šå­—èŠ‚
-	int nWideLen = MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos, 
-		dwBytesRead - nStartPos, NULL, 0);
-	if (nWideLen <= 0)
-	{
-		delete[] pBuffer;
-		MessageBox(_T("é…ç½®æ–‡ä»¶ç¼–ç é”™è¯¯ï¼ˆéœ€è¦UTF-8ç¼–ç ï¼‰ã€‚"), _T("é”™è¯¯"), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	wchar_t* pWideBuffer = new wchar_t[nWideLen + 1];
-	MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos, dwBytesRead - nStartPos, 
-		pWideBuffer, nWideLen);
-	pWideBuffer[nWideLen] = 0;
-	delete[] pBuffer;
-
-	// å°†Unicodeè½¬æ¢ä¸ºå¤šå­—èŠ‚å­—ç¬¦
-	int nMultiByteLen = WideCharToMultiByte(CP_ACP, 0, pWideBuffer, nWideLen, NULL, 0, NULL, NULL);
-	if (nMultiByteLen <= 0)
-	{
-		delete[] pWideBuffer;
-		MessageBox(_T("å­—ç¬¦è½¬æ¢å¤±è´¥ã€‚"), _T("é”™è¯¯"), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	char* pMultiByteBuffer = new char[nMultiByteLen + 1];
-	WideCharToMultiByte(CP_ACP, 0, pWideBuffer, nWideLen, pMultiByteBuffer, nMultiByteLen, NULL, NULL);
-	pMultiByteBuffer[nMultiByteLen] = 0;
-	delete[] pWideBuffer;
-
-	// è§£æINIæ–‡ä»¶å†…å®¹
-	CString strContent = pMultiByteBuffer;
-	delete[] pMultiByteBuffer;
-#endif
-
-	CString strCurrentCategory;
-	int nPos = 0;
-	CString strLine;
-
-	// é€è¡Œè§£æ
-	while (nPos < strContent.GetLength())
-	{
-		int nLineEnd = strContent.Find(_T('\n'), nPos);
-		if (nLineEnd == -1)
-		{
-			strLine = strContent.Mid(nPos);
-			nPos = strContent.GetLength();
-		}
-		else
-		{
-			strLine = strContent.Mid(nPos, nLineEnd - nPos);
-			nPos = nLineEnd + 1;
-		}
-
-		// å»é™¤å›è½¦ç¬¦å’Œå‰åç©ºæ ¼
-		strLine.Trim();
-		if (strLine.IsEmpty())
-			continue;
-
-		// æ£€æŸ¥æ˜¯å¦æ˜¯åˆ†ç±»è¡Œ [åˆ†ç±»å]
-		if (strLine.GetLength() > 2 && strLine[0] == _T('[') && 
-			strLine[strLine.GetLength() - 1] == _T(']'))
-		{
-			strCurrentCategory = strLine.Mid(1, strLine.GetLength() - 2);
-			strCurrentCategory.Trim();
-		}
-		// æ£€æŸ¥æ˜¯å¦æ˜¯é”®å€¼å¯¹ å·¥å…·åç§°=å·¥å…·è·¯å¾„
-		else if (!strCurrentCategory.IsEmpty())
-		{
-			int nEqualPos = strLine.Find(_T('='));
-			if (nEqualPos > 0)
-			{
-				CString strToolName = strLine.Left(nEqualPos);
-				CString strToolPath = strLine.Mid(nEqualPos + 1);
-
-				// å»é™¤ç©ºæ ¼å’Œå¼•å·
-				strToolName.Trim();
-				strToolPath.Trim();
-				if (strToolPath.GetLength() > 0 && strToolPath[0] == _T('"'))
-				{
-					strToolPath = strToolPath.Mid(1);
-				}
-				if (strToolPath.GetLength() > 0 && strToolPath[strToolPath.GetLength() - 1] == _T('"'))
-				{
-					strToolPath = strToolPath.Left(strToolPath.GetLength() - 1);
-				}
-
-				// æ·»åŠ å·¥å…·
-				if (!strToolName.IsEmpty() && !strToolPath.IsEmpty())
-				{
-					m_toolManager.AddTool(strCurrentCategory, strToolName, strToolPath);
-				}
-			}
-		}
-	}
-}
-
-// åŠ è½½å·¥å…·åˆ†ç±»
+// ¼ÓÔØ¹¤¾ß·ÖÀà
 void CWDToolBoxDlg::LoadToolCategories()
 {
-	// ä»é…ç½®æ–‡ä»¶åŠ è½½å·¥å…·
-	LoadToolsFromConfig(_T(""));
+    // ´ÓÅäÖÃÎÄ¼ş¼ÓÔØ¹¤¾ß£¬Èç¹ûÊ§°ÜÔòÊ¹ÓÃÄ¬ÈÏÅäÖÃ
+    if (!m_toolManager.LoadFromConfig(_T("")))
+    {
+        // ÅäÖÃÎÄ¼ş²»´æÔÚ»ò¼ÓÔØÊ§°Ü£¬½«Ê¹ÓÃÄ¬ÈÏÅäÖÃ
+        MessageBox(_T("ÅäÖÃÎÄ¼ş²»´æÔÚ»ò¼ÓÔØÊ§°Ü£¬½«Ê¹ÓÃÄ¬ÈÏÅäÖÃ¡£"), _T("ÌáÊ¾"), MB_OK | MB_ICONINFORMATION);
+        m_toolManager.LoadDefaultTools();
+    }
 
-	// å¦‚æœé…ç½®æ–‡ä»¶ä¸ºç©ºæˆ–ä¸å­˜åœ¨ï¼Œä½¿ç”¨é»˜è®¤é…ç½®
-	std::vector<CString> tempCategories;
-	m_toolManager.GetAllCategories(tempCategories);
-	if (tempCategories.empty())
-	{
-		// é»˜è®¤é…ç½®ï¼ˆä½œä¸ºåå¤‡ï¼‰
-		m_toolManager.AddTool(_T("ç³»ç»Ÿå·¥å…·"), _T("ä»»åŠ¡ç®¡ç†å™¨"), _T("C:\\Windows\\System32\\taskmgr.exe"));
-		m_toolManager.AddTool(_T("ç³»ç»Ÿå·¥å…·"), _T("æ³¨å†Œè¡¨ç¼–è¾‘å™¨"), _T("C:\\Windows\\regedit.exe"));
-		m_toolManager.AddTool(_T("ç³»ç»Ÿå·¥å…·"), _T("ç³»ç»Ÿé…ç½®"), _T("C:\\Windows\\System32\\msconfig.exe"));
-		m_toolManager.AddTool(_T("ç³»ç»Ÿå·¥å…·"), _T("è®¾å¤‡ç®¡ç†å™¨"), _T("C:\\Windows\\System32\\devmgmt.msc"));
-		m_toolManager.AddTool(_T("ç³»ç»Ÿå·¥å…·"), _T("æœåŠ¡"), _T("C:\\Windows\\System32\\services.msc"));
-		m_toolManager.AddTool(_T("ç³»ç»Ÿå·¥å…·"), _T("è¯ä¹¦ç®¡ç†"), _T("C:\\Windows\\System32\\certmgr.msc"));
+    // ¼ÓÔØÍ¼±ê£¨Õâ»á´´½¨Í¼ÏñÁĞ±í£©
+    m_toolManager.LoadToolIcons(m_imageList);
 
-		m_toolManager.AddTool(_T("ç£ç›˜å·¥å…·"), _T("ç£ç›˜ç®¡ç†"), _T("C:\\Windows\\System32\\diskmgmt.msc"));
-		m_toolManager.AddTool(_T("ç£ç›˜å·¥å…·"), _T("ç£ç›˜æ¸…ç†"), _T("C:\\Windows\\System32\\cleanmgr.exe"));
+    // ½«Í¼ÏñÁĞ±íÉèÖÃµ½¹¤¾ßÁĞ±í¿Ø¼ş
+    m_listTool.SetImageList(&m_imageList, LVSIL_NORMAL);
 
-		m_toolManager.AddTool(_T("ç½‘ç»œå·¥å…·"), _T("ç½‘ç»œè¿æ¥"), _T("C:\\Windows\\System32\\ncpa.cpl"));
-		m_toolManager.AddTool(_T("ç½‘ç»œå·¥å…·"), _T("å‘½ä»¤æç¤ºç¬¦"), _T("C:\\Windows\\System32\\cmd.exe"));
-	}
+    // Ìî³ä·ÖÀàÁĞ±í
+    std::vector<CString> categories;
+    m_toolManager.GetAllCategories(categories);
 
-	// åŠ è½½å›¾æ ‡ï¼ˆè¿™ä¼šåˆ›å»ºå›¾åƒåˆ—è¡¨ï¼‰
-	m_toolManager.LoadToolIcons(m_imageList);
-	
-	// å°†å›¾åƒåˆ—è¡¨è®¾ç½®åˆ°å·¥å…·åˆ—è¡¨æ§ä»¶
-	m_listTool.SetImageList(&m_imageList, LVSIL_NORMAL);
+    m_listCategory.DeleteAllItems();
+    for (size_t i = 0; i < categories.size(); i++)
+    {
+        int nIndex = m_listCategory.InsertItem((int)i, categories[i]);
+        m_listCategory.SetItemData(nIndex, i);
+    }
 
-	// å¡«å……åˆ†ç±»åˆ—è¡¨
-	std::vector<CString> categories;
-	m_toolManager.GetAllCategories(categories);
-
-	m_listCategory.DeleteAllItems();
-	for (size_t i = 0; i < categories.size(); i++)
-	{
-		int nIndex = m_listCategory.InsertItem((int)i, categories[i]);
-		m_listCategory.SetItemData(nIndex, i);
-	}
-
-	// é»˜è®¤é€‰æ‹©ç¬¬ä¸€é¡¹
-	if (m_listCategory.GetItemCount() > 0)
-	{
-		m_listCategory.SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
-		UpdateToolList(categories[0]);
-	}
+    // Ä¬ÈÏÑ¡ÔñµÚÒ»Ïî
+    if (m_listCategory.GetItemCount() > 0)
+    {
+        m_listCategory.SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+        UpdateToolList(categories[0]);
+    }
 }
 
-// æ›´æ–°å·¥å…·åˆ—è¡¨
+// ¸üĞÂ¹¤¾ßÁĞ±í
 void CWDToolBoxDlg::UpdateToolList(const CString& strCategory)
 {
-	m_listTool.DeleteAllItems();
+    m_listTool.DeleteAllItems();
 
-	std::vector<ToolInfo>& tools = m_toolManager.GetToolsByCategory(strCategory);
-	for (size_t i = 0; i < tools.size(); i++)
-	{
-		LVITEM lvItem = { 0 };
-		lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
-		lvItem.iItem = (int)i;
-		lvItem.iSubItem = 0;
-		lvItem.pszText = (LPTSTR)(LPCTSTR)tools[i].strName;
-		lvItem.iImage = tools[i].nIconIndex;
-		lvItem.lParam = (LPARAM)&tools[i];
+    std::vector<ToolInfo>& tools = m_toolManager.GetToolsByCategory(strCategory);
+    for (size_t i = 0; i < tools.size(); i++)
+    {
+        LVITEM lvItem = { 0 };
+        lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+        lvItem.iItem = (int)i;
+        lvItem.iSubItem = 0;
+        lvItem.pszText = (LPTSTR)(LPCTSTR)tools[i].strName;
+        lvItem.iImage = tools[i].nIconIndex;
+        lvItem.lParam = (LPARAM)&tools[i];
 
-		int nIndex = m_listTool.InsertItem(&lvItem);
-		m_listTool.SetItemData(nIndex, (DWORD_PTR)&tools[i]);
-	}
+        int nIndex = m_listTool.InsertItem(&lvItem);
+        m_listTool.SetItemData(nIndex, (DWORD_PTR)&tools[i]);
+    }
 }
 
-// åˆ†ç±»åˆ—è¡¨é€‰æ‹©æ”¹å˜äº‹ä»¶
+// ·ÖÀàÁĞ±íÑ¡Ôñ¸Ä±äÊÂ¼ş
 void CWDToolBoxDlg::OnLvnItemchangedCategoryList(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
-	
-	if (pNMLV->uChanged & LVIF_STATE && pNMLV->uNewState & LVIS_SELECTED)
-	{
-		CString strCategory = m_listCategory.GetItemText(pNMLV->iItem, 0);
-		UpdateToolList(strCategory);
-	}
+    LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+    
+    if (pNMLV->uChanged & LVIF_STATE && pNMLV->uNewState & LVIS_SELECTED)
+    {
+        CString strCategory = m_listCategory.GetItemText(pNMLV->iItem, 0);
+        UpdateToolList(strCategory);
+    }
 
-	*pResult = 0;
+    *pResult = 0;
 }
 
-// å·¥å…·åˆ—è¡¨åŒå‡»äº‹ä»¶
+// ¹¤¾ßÁĞ±íË«»÷ÊÂ¼ş
 void CWDToolBoxDlg::OnNMDblclkToolList(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-	
-	if (pNMItemActivate->iItem >= 0)
-	{
-		ToolInfo* pTool = (ToolInfo*)m_listTool.GetItemData(pNMItemActivate->iItem);
-		if (pTool != NULL)
-		{
-			m_launcher.Execute(pTool->strPath); // è¿›ç¨‹å¯åŠ¨å™¨å¯åŠ¨å·¥å…·
-		}
-	}
+    LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+    
+    if (pNMItemActivate->iItem >= 0)
+    {
+        ToolInfo* pTool = (ToolInfo*)m_listTool.GetItemData(pNMItemActivate->iItem);
+        if (pTool != NULL)
+        {
+            m_launcher.Execute(pTool->strPath); // ½ø³ÌÆô¶¯Æ÷Æô¶¯¹¤¾ß
+        }
+    }
 
-	*pResult = 0;
+    *pResult = 0;
 }
 
-// çª—å£å¤§å°æ”¹å˜äº‹ä»¶
+// ´°¿Ú´óĞ¡¸Ä±äÊÂ¼ş
 void CWDToolBoxDlg::OnSize(UINT nType, int cx, int cy)
 {
-	CDialogEx::OnSize(nType, cx, cy);
+    CDialogEx::OnSize(nType, cx, cy);
 
-	if (nType == SIZE_MINIMIZED)
-		return;
+    if (nType == SIZE_MINIMIZED)
+        return;
 
-	if (m_tabCtrl.GetSafeHwnd())
-	{
-		// è°ƒæ•´æ ‡ç­¾é¡µæ§ä»¶å¤§å°
-		CRect rectTab(10, 10, cx - 10, cy - 10);
-		m_tabCtrl.MoveWindow(&rectTab);
+    if (m_tabCtrl.GetSafeHwnd())
+    {
+        // µ÷Õû±êÇ©Ò³¿Ø¼ş´óĞ¡
+        CRect rectTab(10, 10, cx - 10, cy - 10);
+        m_tabCtrl.MoveWindow(&rectTab);
 
-		// è·å–åˆ†é¡µå†…å®¹åŒºåŸŸ
-		CRect rectPage;
-		m_tabCtrl.GetClientRect(&rectPage);
-		m_tabCtrl.AdjustRect(FALSE, &rectPage);
-		rectPage.OffsetRect(10, 35);
-		rectPage.right = cx - 20;
-		rectPage.bottom = cy - 20;
+        // »ñÈ¡·ÖÒ³ÄÚÈİÇøÓò
+        CRect rectPage;
+        m_tabCtrl.GetClientRect(&rectPage);
+        m_tabCtrl.AdjustRect(FALSE, &rectPage);
+        rectPage.OffsetRect(10, 35);
+        rectPage.right = cx - 20;
+        rectPage.bottom = cy - 20;
 
-		// ç¡®ä¿å·¦ä¾§åˆ—è¡¨å®½åº¦åœ¨åˆç†èŒƒå›´å†…ï¼ˆæœ€å°150ï¼Œæœ€å¤§ä¸è¶…è¿‡çª—å£å®½åº¦çš„50%ï¼‰
-		if (m_nCategoryListWidth < 150)
-			m_nCategoryListWidth = 150;
-		if (m_nCategoryListWidth > rectPage.Width() / 2)
-			m_nCategoryListWidth = rectPage.Width() / 2;
+        // È·±£×ó²àÁĞ±í¿í¶ÈÔÚºÏÀí·¶Î§ÄÚ£¨×îĞ¡150£¬×î´ó²»³¬¹ı´°¿Ú¿í¶ÈµÄ50%£©
+        if (m_nCategoryListWidth < 150)
+            m_nCategoryListWidth = 150;
+        if (m_nCategoryListWidth > rectPage.Width() / 2)
+            m_nCategoryListWidth = rectPage.Width() / 2;
 
-		// è°ƒæ•´å·¥å…·ç®¡ç†å™¨åˆ†é¡µæ§ä»¶
-		CRect rectCategory(rectPage.left, rectPage.top,
-			rectPage.left + m_nCategoryListWidth, rectPage.bottom);
-		m_listCategory.MoveWindow(&rectCategory);
+        // µ÷Õû¹¤¾ß¹ÜÀíÆ÷·ÖÒ³¿Ø¼ş
+        CRect rectCategory(rectPage.left, rectPage.top,
+            rectPage.left + m_nCategoryListWidth, rectPage.bottom);
+        m_listCategory.MoveWindow(&rectCategory);
 
-		CRect rectSplitter(rectCategory.right, rectPage.top, rectCategory.right + 4, rectPage.bottom);
-		m_splitter.MoveWindow(&rectSplitter);
+        CRect rectSplitter(rectCategory.right, rectPage.top, rectCategory.right + 4, rectPage.bottom);
+        m_splitter.MoveWindow(&rectSplitter);
 
-		CRect rectTool(rectSplitter.right + 6, rectPage.top, rectPage.right, rectPage.bottom);
-		m_listTool.MoveWindow(&rectTool);
+        CRect rectTool(rectSplitter.right + 6, rectPage.top, rectPage.right, rectPage.bottom);
+        m_listTool.MoveWindow(&rectTool);
 
-		// è°ƒæ•´å·¥ä½œæ—¥å¿—åˆ†é¡µæ§ä»¶
-		m_listWorkLog.MoveWindow(&CRect(rectPage.left, rectPage.top,
-			rectPage.right, rectPage.bottom - 100));
+        // µ÷Õû¹¤×÷ÈÕÖ¾·ÖÒ³¿Ø¼ş
+        m_listWorkLog.MoveWindow(&CRect(rectPage.left, rectPage.top,
+            rectPage.right, rectPage.bottom - 100));
 
-		m_editWorkLog.MoveWindow(&CRect(rectPage.left, rectPage.bottom - 95,
-			rectPage.right - 120, rectPage.bottom - 40));
+        m_editWorkLog.MoveWindow(&CRect(rectPage.left, rectPage.bottom - 95,
+            rectPage.right - 120, rectPage.bottom - 40));
 
-		CRect rectBtn(rectPage.right - 110, rectPage.bottom - 95,
-			rectPage.right - 10, rectPage.bottom - 70);
-		m_btnAddLog.MoveWindow(&rectBtn);
+        CRect rectBtn(rectPage.right - 110, rectPage.bottom - 95,
+            rectPage.right - 10, rectPage.bottom - 70);
+        m_btnAddLog.MoveWindow(&rectBtn);
 
-		rectBtn.OffsetRect(0, 30);
-		m_btnSaveLog.MoveWindow(&rectBtn);
+        rectBtn.OffsetRect(0, 30);
+        m_btnSaveLog.MoveWindow(&rectBtn);
 
-		// é‡æ–°è°ƒæ•´åˆ—å®½
-		if (m_listCategory.GetSafeHwnd())
-		{
-			m_listCategory.SetColumnWidth(0, m_nCategoryListWidth - 20);
-		}
-		if (m_listWorkLog.GetSafeHwnd())
-		{
-			m_listWorkLog.SetColumnWidth(0, 150);
-			m_listWorkLog.SetColumnWidth(1, rectPage.Width() - 170);
-		}
-	}
+        // ÖØĞÂµ÷ÕûÁĞ¿í
+        if (m_listCategory.GetSafeHwnd())
+        {
+            m_listCategory.SetColumnWidth(0, m_nCategoryListWidth - 20);
+        }
+        if (m_listWorkLog.GetSafeHwnd())
+        {
+            m_listWorkLog.SetColumnWidth(0, 150);
+            m_listWorkLog.SetColumnWidth(1, rectPage.Width() - 170);
+        }
+    }
 }
 
-// é¼ æ ‡å·¦é”®æŒ‰ä¸‹äº‹ä»¶ï¼ˆç”¨äºæ‹–åŠ¨åˆ†å‰²æ¡ï¼‰
+// Êó±ê×ó¼ü°´ÏÂÊÂ¼ş£¨ÓÃÓÚÍÏ¶¯·Ö¸îÌõ£©
 void CWDToolBoxDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	CRect rectSplitter;
-	if (m_splitter.GetSafeHwnd())
-	{
-		m_splitter.GetWindowRect(&rectSplitter);
-		ScreenToClient(&rectSplitter);
-		
-		// æ‰©å¤§å¯æ‹–åŠ¨åŒºåŸŸï¼ˆå·¦å³å„æ‰©å±•5åƒç´ ï¼‰
-		rectSplitter.InflateRect(5, 0);
-		
-		if (rectSplitter.PtInRect(point))
-		{
-			m_bDragging = TRUE;
-			m_nDragStartX = point.x;
-			m_nDragStartWidth = m_nCategoryListWidth;
-			SetCapture();  // æ•è·é¼ æ ‡æ¶ˆæ¯
-			return;
-		}
-	}
-	
-	CDialogEx::OnLButtonDown(nFlags, point);
+    CRect rectSplitter;
+    if (m_splitter.GetSafeHwnd())
+    {
+        m_splitter.GetWindowRect(&rectSplitter);
+        ScreenToClient(&rectSplitter);
+        
+        // À©´ó¿ÉÍÏ¶¯ÇøÓò£¨×óÓÒ¸÷À©Õ¹5ÏñËØ£©
+        rectSplitter.InflateRect(5, 0);
+        
+        if (rectSplitter.PtInRect(point))
+        {
+            m_bDragging = TRUE;
+            m_nDragStartX = point.x;
+            m_nDragStartWidth = m_nCategoryListWidth;
+            SetCapture();  // ²¶»ñÊó±êÏûÏ¢
+            return;
+        }
+    }
+
+    CDialogEx::OnLButtonDown(nFlags, point);
 }
 
-// é¼ æ ‡ç§»åŠ¨äº‹ä»¶ï¼ˆæ‹–åŠ¨åˆ†å‰²æ¡æ—¶è°ƒæ•´å®½åº¦ï¼‰
+// Êó±êÒÆ¶¯ÊÂ¼ş£¨ÍÏ¶¯·Ö¸îÌõÊ±µ÷Õû¿í¶È£©
 void CWDToolBoxDlg::OnMouseMove(UINT nFlags, CPoint point)
 {
-	if (m_bDragging)
-	{
-		// è®¡ç®—æ–°çš„å®½åº¦
-		int nDeltaX = point.x - m_nDragStartX;
-		int nNewWidth = m_nDragStartWidth + nDeltaX;
-		
-		// é™åˆ¶å®½åº¦èŒƒå›´ï¼ˆæœ€å°150ï¼Œæœ€å¤§ä¸è¶…è¿‡çª—å£å®½åº¦çš„50%ï¼‰
-		CRect rect;
-		GetClientRect(&rect);
-		if (nNewWidth < 150)
-			nNewWidth = 150;
-		if (nNewWidth > rect.Width() / 2)
-			nNewWidth = rect.Width() / 2;
-		
-		// æ›´æ–°å®½åº¦å¹¶é‡æ–°å¸ƒå±€
-		if (nNewWidth != m_nCategoryListWidth)
-		{
-			m_nCategoryListWidth = nNewWidth;
-			OnSize(0, rect.Width(), rect.Height());
-		}
-	}
-	else
-	{
-		// æ£€æŸ¥é¼ æ ‡æ˜¯å¦åœ¨åˆ†å‰²æ¡ä¸Šï¼Œæ”¹å˜å…‰æ ‡
-		CRect rectSplitter;
-		if (m_splitter.GetSafeHwnd())
-		{
-			m_splitter.GetWindowRect(&rectSplitter);
-			ScreenToClient(&rectSplitter);
-			rectSplitter.InflateRect(5, 0);
-			
-			if (rectSplitter.PtInRect(point))
-			{
-				::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));  // å·¦å³è°ƒæ•´å…‰æ ‡
-			}
-		}
-	}
-	
-	CDialogEx::OnMouseMove(nFlags, point);
+    if (m_bDragging)
+    {
+        // ¼ÆËãĞÂµÄ¿í¶È
+        int nDeltaX = point.x - m_nDragStartX;
+        int nNewWidth = m_nDragStartWidth + nDeltaX;
+
+        // ÏŞÖÆ¿í¶È·¶Î§£¨×îĞ¡150£¬×î´ó²»³¬¹ı´°¿Ú¿í¶ÈµÄ50%£©
+        CRect rect;
+        GetClientRect(&rect);
+        if (nNewWidth < 150)
+            nNewWidth = 150;
+        if (nNewWidth > rect.Width() / 2)
+            nNewWidth = rect.Width() / 2;
+
+        // ¸üĞÂ¿í¶È²¢ÖØĞÂ²¼¾Ö
+        if (nNewWidth != m_nCategoryListWidth)
+        {
+            m_nCategoryListWidth = nNewWidth;
+            OnSize(0, rect.Width(), rect.Height());
+        }
+    }
+    else
+    {
+        // ¼ì²éÊó±êÊÇ·ñÔÚ·Ö¸îÌõÉÏ£¬¸Ä±ä¹â±ê
+        CRect rectSplitter;
+        if (m_splitter.GetSafeHwnd())
+        {
+            m_splitter.GetWindowRect(&rectSplitter);
+            ScreenToClient(&rectSplitter);
+            rectSplitter.InflateRect(5, 0);
+            
+            if (rectSplitter.PtInRect(point))
+            {
+                ::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));  // ×óÓÒµ÷Õû¹â±ê
+            }
+        }
+    }
+    
+    CDialogEx::OnMouseMove(nFlags, point);
 }
 
-// é¼ æ ‡å·¦é”®é‡Šæ”¾äº‹ä»¶ï¼ˆç»“æŸæ‹–åŠ¨ï¼‰
+// Êó±ê×ó¼üÊÍ·ÅÊÂ¼ş£¨½áÊøÍÏ¶¯£©
 void CWDToolBoxDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	if (m_bDragging)
-	{
-		m_bDragging = FALSE;
-		ReleaseCapture();  // é‡Šæ”¾é¼ æ ‡æ•è·
-	}
-	
-	CDialogEx::OnLButtonUp(nFlags, point);
+    if (m_bDragging)
+    {
+        m_bDragging = FALSE;
+        ReleaseCapture();  // ÊÍ·ÅÊó±ê²¶»ñ
+    }
+
+    CDialogEx::OnLButtonUp(nFlags, point);
 }
 
-// è®¾ç½®å…‰æ ‡ï¼ˆåœ¨åˆ†å‰²æ¡ä¸Šæ˜¾ç¤ºè°ƒæ•´å…‰æ ‡ï¼‰
+// ÉèÖÃ¹â±ê£¨ÔÚ·Ö¸îÌõÉÏÏÔÊ¾µ÷Õû¹â±ê£©
 BOOL CWDToolBoxDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 {
-	if (pWnd == &m_splitter || pWnd->GetDlgCtrlID() == IDC_SPLITTER)
-	{
-		::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));  // å·¦å³è°ƒæ•´å…‰æ ‡
-		return TRUE;
-	}
-	
-	return CDialogEx::OnSetCursor(pWnd, nHitTest, message);
+    if (pWnd == &m_splitter || pWnd->GetDlgCtrlID() == IDC_SPLITTER)
+    {
+        ::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));  // ×óÓÒµ÷Õû¹â±ê
+        return TRUE;
+    }
+    
+    return CDialogEx::OnSetCursor(pWnd, nHitTest, message);
 }
 
-// åˆ†é¡µåˆ‡æ¢äº‹ä»¶å¤„ç†
+// ·ÖÒ³ÇĞ»»ÊÂ¼ş´¦Àí
 void CWDToolBoxDlg::OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	int nCurSel = m_tabCtrl.GetCurSel();
-	ShowTabPage(nCurSel);
-	*pResult = 0;
+    int nCurSel = m_tabCtrl.GetCurSel();
+    ShowTabPage(nCurSel);
+    *pResult = 0;
 }
 
-// æ˜¾ç¤ºæŒ‡å®šåˆ†é¡µ
+// ÏÔÊ¾Ö¸¶¨·ÖÒ³
 void CWDToolBoxDlg::ShowTabPage(int nPage)
 {
-	// éšè—æ‰€æœ‰åˆ†é¡µæ§ä»¶
-	m_listCategory.ShowWindow(SW_HIDE);
-	m_listTool.ShowWindow(SW_HIDE);
-	m_splitter.ShowWindow(SW_HIDE);
-	m_listWorkLog.ShowWindow(SW_HIDE);
-	m_editWorkLog.ShowWindow(SW_HIDE);
-	m_btnAddLog.ShowWindow(SW_HIDE);
-	m_btnSaveLog.ShowWindow(SW_HIDE);
+    // Òş²ØËùÓĞ·ÖÒ³¿Ø¼ş
+    m_listCategory.ShowWindow(SW_HIDE);
+    m_listTool.ShowWindow(SW_HIDE);
+    m_splitter.ShowWindow(SW_HIDE);
+    m_listWorkLog.ShowWindow(SW_HIDE);
+    m_editWorkLog.ShowWindow(SW_HIDE);
+    m_btnAddLog.ShowWindow(SW_HIDE);
+    m_btnSaveLog.ShowWindow(SW_HIDE);
 
-	switch (nPage)
-	{
-	case 0: // å·¥å…·ç®¡ç†å™¨åˆ†é¡µ
-		m_listCategory.ShowWindow(SW_SHOW);
-		m_listTool.ShowWindow(SW_SHOW);
-		m_splitter.ShowWindow(SW_SHOW);
-		break;
-	case 1: // å·¥ä½œæ—¥å¿—åˆ†é¡µ
-		m_listWorkLog.ShowWindow(SW_SHOW);
-		m_editWorkLog.ShowWindow(SW_SHOW);
-		m_btnAddLog.ShowWindow(SW_SHOW);
-		m_btnSaveLog.ShowWindow(SW_SHOW);
-		InitializeWorkLogPage();
-		break;
-	}
+    switch (nPage)
+    {
+    case 0: // ¹¤¾ß¹ÜÀíÆ÷·ÖÒ³
+        m_listCategory.ShowWindow(SW_SHOW);
+        m_listTool.ShowWindow(SW_SHOW);
+        m_splitter.ShowWindow(SW_SHOW);
+        break;
+    case 1: // ¹¤×÷ÈÕÖ¾·ÖÒ³
+        m_listWorkLog.ShowWindow(SW_SHOW);
+        m_editWorkLog.ShowWindow(SW_SHOW);
+        m_btnAddLog.ShowWindow(SW_SHOW);
+        m_btnSaveLog.ShowWindow(SW_SHOW);
+        InitializeWorkLogPage();
+        break;
+    }
 }
 
-// åˆå§‹åŒ–å·¥ä½œæ—¥å¿—åˆ†é¡µ
+// ³õÊ¼»¯¹¤×÷ÈÕÖ¾·ÖÒ³
 void CWDToolBoxDlg::InitializeWorkLogPage()
 {
-	if (m_listWorkLog.GetItemCount() == 0)
-	{
-		LoadWorkLogData();
-	}
+    if (m_listWorkLog.GetItemCount() == 0)
+    {
+        LoadWorkLogData();
+    }
 }
 
-// åŠ è½½å·¥ä½œæ—¥å¿—æ•°æ®
+// ¼ÓÔØ¹¤×÷ÈÕÖ¾Êı¾İ
 void CWDToolBoxDlg::LoadWorkLogData()
 {
-	m_listWorkLog.DeleteAllItems();
-	std::vector<WorkLogEntry> logs;
-	m_workLogger.GetAllLogs(logs);
+    m_listWorkLog.DeleteAllItems();
+    std::vector<WorkLogEntry> logs;
+    m_workLogger.GetAllLogs(logs);
 
-	for (size_t i = 0; i < logs.size(); i++)
-	{
-		CString strTime = CTime(logs[i].time).Format(_T("%Y-%m-%d %H:%M:%S"));
-		CString strContent = logs[i].content;
+    for (size_t i = 0; i < logs.size(); i++)
+    {
+        CString strTime = CTime(logs[i].time).Format(_T("%Y-%m-%d %H:%M:%S"));
+        CString strContent = logs[i].content;
 
-		m_listWorkLog.InsertItem((int)i, strTime);
-		m_listWorkLog.SetItemText((int)i, 1, strContent);
-	}
+        m_listWorkLog.InsertItem((int)i, strTime);
+        m_listWorkLog.SetItemText((int)i, 1, strContent);
+    }
 }
 
-// ä¿å­˜å·¥ä½œæ—¥å¿—æ•°æ®
+// ±£´æ¹¤×÷ÈÕÖ¾Êı¾İ
 void CWDToolBoxDlg::SaveWorkLogData()
 {
-	m_workLogger.SaveLogs();
+    m_workLogger.SaveLogs();
 }
 
-// æ·»åŠ æ—¥å¿—æŒ‰é’®äº‹ä»¶
+// Ìí¼ÓÈÕÖ¾°´Å¥ÊÂ¼ş
 void CWDToolBoxDlg::OnBnClickedBtnAddLog()
 {
-	CString strContent;
-	m_editWorkLog.GetWindowText(strContent);
-	if (!strContent.IsEmpty())
-	{
-		// æ·»åŠ åˆ°åˆ—è¡¨
-		int nItem = m_listWorkLog.GetItemCount();
-		CTime time = CTime::GetCurrentTime();
-		CString strTime = time.Format(_T("%Y-%m-%d %H:%M:%S"));
+    CString strContent;
+    m_editWorkLog.GetWindowText(strContent);
+    if (!strContent.IsEmpty())
+    {
+        // Ìí¼Óµ½ÁĞ±í
+        int nItem = m_listWorkLog.GetItemCount();
+        CTime time = CTime::GetCurrentTime();
+        CString strTime = time.Format(_T("%Y-%m-%d %H:%M:%S"));
 
-		m_listWorkLog.InsertItem(nItem, strTime);
-		m_listWorkLog.SetItemText(nItem, 1, strContent);
+        m_listWorkLog.InsertItem(nItem, strTime);
+        m_listWorkLog.SetItemText(nItem, 1, strContent);
 
-		// æ¸…ç©ºç¼–è¾‘æ¡†
-		m_editWorkLog.SetWindowText(_T(""));
+        // Çå¿Õ±à¼­¿ò
+        m_editWorkLog.SetWindowText(_T(""));
 
-		// æ‰§è¡Œå·¥ä½œæ—¥å¿—å¤„ç†
-		m_workLogger.Execute(strContent);
-	}
+        // Ö´ĞĞ¹¤×÷ÈÕÖ¾´¦Àí
+        m_workLogger.Execute(strContent);
+    }
 }
 
-// ä¿å­˜æ—¥å¿—æŒ‰é’®äº‹ä»¶
+// ±£´æÈÕÖ¾°´Å¥ÊÂ¼ş
 void CWDToolBoxDlg::OnBnClickedBtnSaveLog()
 {
-	SaveWorkLogData();
-	MessageBox(_T("å·¥ä½œæ—¥å¿—å·²ä¿å­˜ï¼"), _T("æç¤º"), MB_OK | MB_ICONINFORMATION);
+    SaveWorkLogData();
+    MessageBox(_T("¹¤×÷ÈÕÖ¾ÒÑ±£´æ£¡"), _T("ÌáÊ¾"), MB_OK | MB_ICONINFORMATION);
 }
-
-

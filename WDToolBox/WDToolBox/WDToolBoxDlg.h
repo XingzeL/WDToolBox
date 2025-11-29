@@ -1,5 +1,4 @@
-ï»¿
-// WDToolBoxDlg.h: å¤´æ–‡ä»¶
+// WDToolBoxDlg.h: Í·ÎÄ¼ş
 //
 
 #pragma once
@@ -8,55 +7,55 @@
 #include "ProcessLauncher.h"
 #include "WorkLogManager.h"
 
-// CWDToolBoxDlg å¯¹è¯æ¡†
+// CWDToolBoxDlg ¶Ô»°¿ò
 class CWDToolBoxDlg : public CDialogEx
 {
-// æ„é€ 
+// ¹¹Ôì
 public:
-	CWDToolBoxDlg(CWnd* pParent = nullptr);	// æ ‡å‡†æ„é€ å‡½æ•°
+	CWDToolBoxDlg(CWnd* pParent = nullptr);	// ±ê×¼¹¹Ôìº¯Êı
 
-// å¯¹è¯æ¡†æ•°æ®
+// ¶Ô»°¿òÊı¾İ
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_WDTOOLBOX_DIALOG };
 #endif
 
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV æ”¯æŒ
+	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV Ö§³Ö
 
 
-// å®ç°
+// ÊµÏÖ
 protected:
 	HICON m_hIcon;
 
-	// åˆ†é¡µæ§ä»¶
-	CTabCtrl m_tabCtrl;          // æ ‡ç­¾é¡µæ§ä»¶
+	// ·ÖÒ³¿Ø¼ş
+	CTabCtrl m_tabCtrl;          // ±êÇ©Ò³¿Ø¼ş
 
-	// å·¥å…·ç®¡ç†å™¨åˆ†é¡µæ§ä»¶
-	CListCtrl m_listCategory;    // å·¦ä¾§åˆ†ç±»åˆ—è¡¨
-	CListCtrl m_listTool;        // å³ä¾§å·¥å…·å›¾æ ‡åˆ—è¡¨
-	CStatic m_splitter;          // åˆ†å‰²æ¡ï¼ˆç”¨äºè°ƒæ•´å·¦å³æ§ä»¶å®½åº¦ï¼‰
+	// ¹¤¾ß¹ÜÀíÆ÷·ÖÒ³¿Ø¼ş
+	CListCtrl m_listCategory;    // ×ó²à·ÖÀàÁĞ±í
+	CListCtrl m_listTool;        // ÓÒ²à¹¤¾ßÍ¼±êÁĞ±í
+	CStatic m_splitter;          // ·Ö¸îÌõ£¨ÓÃÓÚµ÷Õû×óÓÒ¿Ø¼ş¿í¶È£©
 
-	// å·¥ä½œæ—¥å¿—åˆ†é¡µæ§ä»¶
-	CListCtrl m_listWorkLog;     // å·¥ä½œæ—¥å¿—åˆ—è¡¨
-	CEdit m_editWorkLog;         // å·¥ä½œæ—¥å¿—ç¼–è¾‘æ¡†
-	CButton m_btnAddLog;         // æ·»åŠ æ—¥å¿—æŒ‰é’®
-	CButton m_btnSaveLog;        // ä¿å­˜æ—¥å¿—æŒ‰é’®
+	// ¹¤×÷ÈÕÖ¾·ÖÒ³¿Ø¼ş
+	CListCtrl m_listWorkLog;     // ¹¤×÷ÈÕÖ¾ÁĞ±í
+	CEdit m_editWorkLog;         // ¹¤×÷ÈÕÖ¾±à¼­¿ò
+	CButton m_btnAddLog;         // Ìí¼ÓÈÕÖ¾°´Å¥
+	CButton m_btnSaveLog;        // ±£´æÈÕÖ¾°´Å¥
 
-	CImageList m_imageList;      // å›¾æ ‡å›¾åƒåˆ—è¡¨
+	CImageList m_imageList;      // Í¼±êÍ¼ÏñÁĞ±í
 
-	// ç®¡ç†å™¨
+	// ¹ÜÀíÆ÷
 	CToolManager m_toolManager;
 
 	CProcessLauncher m_launcher;
 	CWorkLogManager m_workLogger;
-	
-	// å¸ƒå±€å‚æ•°
-	int m_nCategoryListWidth;    // å·¦ä¾§åˆ†ç±»åˆ—è¡¨å®½åº¦ï¼ˆå¯è°ƒæ•´ï¼‰
-	BOOL m_bDragging;             // æ˜¯å¦æ­£åœ¨æ‹–åŠ¨åˆ†å‰²æ¡
-	int m_nDragStartX;            // æ‹–åŠ¨å¼€å§‹æ—¶çš„Xåæ ‡
-	int m_nDragStartWidth;        // æ‹–åŠ¨å¼€å§‹æ—¶çš„å·¦ä¾§åˆ—è¡¨å®½åº¦
 
-	// ç”Ÿæˆçš„æ¶ˆæ¯æ˜ å°„å‡½æ•°
+	// ²¼¾Ö²ÎÊı
+	int m_nCategoryListWidth;    // ×ó²à·ÖÀàÁĞ±í¿í¶È£¨¿Éµ÷Õû£©
+	BOOL m_bDragging;             // ÊÇ·ñÕıÔÚÍÏ¶¯·Ö¸îÌõ
+	int m_nDragStartX;            // ÍÏ¶¯¿ªÊ¼Ê±µÄX×ø±ê
+	int m_nDragStartWidth;        // ÍÏ¶¯¿ªÊ¼Ê±µÄ×ó²àÁĞ±í¿í¶È
+
+	// Éú³ÉµÄÏûÏ¢Ó³Éäº¯Êı
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
@@ -71,11 +70,10 @@ protected:
 	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnBnClickedBtnAddLog();
 	afx_msg void OnBnClickedBtnSaveLog();
-	
-	// è¾…åŠ©å‡½æ•°
+
+	// ¸¨Öúº¯Êı
 	void InitializeControls();
 	void LoadToolCategories();
-	void LoadToolsFromConfig(const CString& strConfigPath);
 	void UpdateToolList(const CString& strCategory);
 	void InitializeWorkLogPage();
 	void ShowTabPage(int nPage);

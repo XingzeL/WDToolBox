@@ -1,32 +1,32 @@
-ï»¿#pragma once
+#pragma once
 
 #ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN            // ä» Windows å¤´ä¸­æ’é™¤æå°‘ä½¿ç”¨çš„èµ„æ–™
+#define VC_EXTRALEAN            // ´Ó Windows Í·ÖĞÅÅ³ı¼«ÉÙÊ¹ÓÃµÄ×ÊÁÏ
 #endif
 
 #include "targetver.h"
 
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // æŸäº› CString æ„é€ å‡½æ•°å°†æ˜¯æ˜¾å¼çš„
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // Ä³Ğ© CString ¹¹Ôìº¯Êı½«ÊÇÏÔÊ½µÄ
 
-// å…³é—­ MFC çš„ä¸€äº›å¸¸è§ä¸”ç»å¸¸å¯æ”¾å¿ƒå¿½ç•¥çš„éšè—è­¦å‘Šæ¶ˆæ¯
+// ¹Ø±Õ MFC µÄÒ»Ğ©³£¼ûÇÒ¾­³£¿É·ÅĞÄºöÂÔµÄÒş²Ø¾¯¸æÏûÏ¢
 #define _AFX_ALL_WARNINGS
 
-#include <afxwin.h>         // MFC æ ¸å¿ƒç»„ä»¶å’Œæ ‡å‡†ç»„ä»¶
-#include <afxext.h>         // MFC æ‰©å±•
+#include <afxwin.h>         // MFC ºËĞÄ×é¼şºÍ±ê×¼×é¼ş
+#include <afxext.h>         // MFC À©Õ¹
 
 
-#include <afxdisp.h>        // MFC è‡ªåŠ¨åŒ–ç±»
+#include <afxdisp.h>        // MFC ×Ô¶¯»¯Àà
 
 
 
 #ifndef _AFX_NO_OLE_SUPPORT
-#include <afxdtctl.h>           // MFC å¯¹ Internet Explorer 4 å…¬å…±æ§ä»¶çš„æ”¯æŒ
+#include <afxdtctl.h>           // MFC ¶Ô Internet Explorer 4 ¹«¹²¿Ø¼şµÄÖ§³Ö
 #endif
 #ifndef _AFX_NO_AFXCMN_SUPPORT
-#include <afxcmn.h>             // MFC å¯¹ Windows å…¬å…±æ§ä»¶çš„æ”¯æŒ
+#include <afxcmn.h>             // MFC ¶Ô Windows ¹«¹²¿Ø¼şµÄÖ§³Ö
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
-#include <afxcontrolbars.h>     // MFC æ”¯æŒåŠŸèƒ½åŒºå’Œæ§åˆ¶æ¡
+#include <afxcontrolbars.h>     // MFC Ö§³Ö¹¦ÄÜÇøºÍ¿ØÖÆÌõ
 
 
 

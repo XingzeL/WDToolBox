@@ -1,18 +1,18 @@
-ï»¿
-// WDToolBox.h: PROJECT_NAME åº”ç”¨ç¨‹åºçš„ä¸»å¤´æ–‡ä»¶
+
+// WDToolBox.h: PROJECT_NAME Ó¦ÓÃ³ÌĞòµÄÖ÷Í·ÎÄ¼ş
 //
 
 #pragma once
 
 #ifndef __AFXWIN_H__
-	#error "åœ¨åŒ…å«æ­¤æ–‡ä»¶ä¹‹å‰åŒ…å« 'pch.h' ä»¥ç”Ÿæˆ PCH"
+	#error "ÔÚ°üº¬´ËÎÄ¼şÖ®Ç°°üº¬ 'pch.h' ÒÔÉú³É PCH"
 #endif
 
-#include "resource.h"		// ä¸»ç¬¦å·
+#include "resource.h"		// Ö÷·ûºÅ
 
 
 // CWDToolBoxApp:
-// æœ‰å…³æ­¤ç±»çš„å®ç°ï¼Œè¯·å‚é˜… WDToolBox.cpp
+// ÓĞ¹Ø´ËÀàµÄÊµÏÖ£¬Çë²ÎÔÄ WDToolBox.cpp
 //
 
 class CWDToolBoxApp : public CWinApp
@@ -20,11 +20,11 @@ class CWDToolBoxApp : public CWinApp
 public:
 	CWDToolBoxApp();
 
-// é‡å†™
+// ÖØĞ´
 public:
 	virtual BOOL InitInstance();
 
-// å®ç°
+// ÊµÏÖ
 
 	DECLARE_MESSAGE_MAP()
 };

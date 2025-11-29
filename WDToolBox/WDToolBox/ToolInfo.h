@@ -1,4 +1,4 @@
-// ToolInfo.h: å·¥å…·ä¿¡æ¯æ•°æ®ç»“æ„
+// ToolInfo.h: ¹¤¾ßĞÅÏ¢Êı¾İ½á¹¹
 //
 
 #pragma once
@@ -6,14 +6,14 @@
 #include <vector>
 #include <map>
 
-// å·¥å…·ä¿¡æ¯ç»“æ„
+// ¹¤¾ßĞÅÏ¢½á¹¹
 struct ToolInfo
 {
-	CString strName;      // å·¥å…·åç§°
-	CString strPath;      // å·¥å…·è·¯å¾„
-	CString strCategory;  // å·¥å…·åˆ†ç±»
-	HICON hIcon;         // å·¥å…·å›¾æ ‡
-	int nIconIndex;      // å›¾æ ‡ç´¢å¼•ï¼ˆåœ¨å›¾åƒåˆ—è¡¨ä¸­çš„ç´¢å¼•ï¼‰
+	CString strName;      // ¹¤¾ßÃû³Æ
+	CString strPath;      // ¹¤¾ßÂ·¾¶
+	CString strCategory;  // ¹¤¾ß·ÖÀà
+	HICON hIcon;         // ¹¤¾ßÍ¼±ê
+	int nIconIndex;      // Í¼±êË÷Òı£¨ÔÚÍ¼ÏñÁĞ±íÖĞµÄË÷Òı£©
 
 	ToolInfo()
 		: hIcon(NULL)
@@ -22,30 +22,36 @@ struct ToolInfo
 	}
 };
 
-// å·¥å…·åˆ†ç±»ç®¡ç†ç±»
+// ¹¤¾ß·ÖÀà¹ÜÀíÀà
 class CToolManager
 {
 public:
 	CToolManager();
 	~CToolManager();
 
-	// æ·»åŠ å·¥å…·
+	// Ìí¼Ó¹¤¾ß
 	void AddTool(const CString& strCategory, const CString& strName, const CString& strPath);
 
-	// è·å–æŒ‡å®šåˆ†ç±»çš„æ‰€æœ‰å·¥å…·
+	// »ñÈ¡Ö¸¶¨·ÖÀàµÄËùÓĞ¹¤¾ß
 	std::vector<ToolInfo>& GetToolsByCategory(const CString& strCategory);
 
-	// è·å–æ‰€æœ‰åˆ†ç±»åç§°
+	// »ñÈ¡ËùÓĞ·ÖÀàÃû³Æ
 	void GetAllCategories(std::vector<CString>& categories);
 
-	// åŠ è½½å·¥å…·å›¾æ ‡
+	// ´ÓÅäÖÃÎÄ¼ş¼ÓÔØ¹¤¾ß
+	bool LoadFromConfig(const CString& strConfigPath = _T(""));
+
+	// ¼ÓÔØÄ¬ÈÏ¹¤¾ßÅäÖÃ
+	void LoadDefaultTools();
+
+	// ¼ÓÔØ¹¤¾ßÍ¼±ê
 	void LoadToolIcons(CImageList& imageList);
 
-	// æ¸…ç†èµ„æº
+	// ÇåÀí×ÊÔ´
 	void Clear();
 
 private:
-	std::map<CString, std::vector<ToolInfo>> m_mapTools;  // åˆ†ç±» -> å·¥å…·åˆ—è¡¨
-	std::vector<CString> m_vecCategoryOrder;              // åˆ†ç±»é¡ºåºï¼ˆä¿æŒæ’å…¥é¡ºåºï¼‰
+	std::map<CString, std::vector<ToolInfo>> m_mapTools;  // ·ÖÀà -> ¹¤¾ßÁĞ±í
+	std::vector<CString> m_vecCategoryOrder;              // ·ÖÀàË³Ğò£¨±£³Ö²åÈëË³Ğò£©
 };
 

@@ -1,4 +1,4 @@
-// ToolInfo.cpp: å·¥å…·ä¿¡æ¯æ•°æ®ç»“æ„å®ç°
+// ToolInfo.cpp: ¹¤¾ßĞÅÏ¢Êı¾İ½á¹¹ÊµÏÖ
 //
 
 #include "pch.h"
@@ -26,7 +26,7 @@ void CToolManager::AddTool(const CString& strCategory, const CString& strName, c
 	tool.strPath = strPath;
 	tool.strCategory = strCategory;
 
-	// å¦‚æœæ˜¯æ–°åˆ†ç±»ï¼Œè®°å½•åˆ°é¡ºåºåˆ—è¡¨ä¸­
+	// Èç¹ûÊÇĞÂ·ÖÀà£¬¼ÇÂ¼µ½Ë³ĞòÁĞ±íÖĞ
 	if (m_mapTools.find(strCategory) == m_mapTools.end())
 	{
 		m_vecCategoryOrder.push_back(strCategory);
@@ -43,10 +43,10 @@ std::vector<ToolInfo>& CToolManager::GetToolsByCategory(const CString& strCatego
 void CToolManager::GetAllCategories(std::vector<CString>& categories)
 {
 	categories.clear();
-	// æŒ‰ç…§æ’å…¥é¡ºåºè¿”å›åˆ†ç±»
+	// °´ÕÕ²åÈëË³Ğò·µ»Ø·ÖÀà
 	for (size_t i = 0; i < m_vecCategoryOrder.size(); i++)
 	{
-		// ç¡®ä¿åˆ†ç±»ä»ç„¶å­˜åœ¨ï¼ˆé˜²æ­¢è¢«æ¸…é™¤åé¡ºåºåˆ—è¡¨æœªæ›´æ–°ï¼‰
+		// È·±£·ÖÀàÈÔÈ»´æÔÚ£¨·ÀÖ¹±»Çå³ıºóË³ĞòÁĞ±íÎ´¸üĞÂ£©
 		if (m_mapTools.find(m_vecCategoryOrder[i]) != m_mapTools.end())
 		{
 			categories.push_back(m_vecCategoryOrder[i]);
@@ -56,11 +56,14 @@ void CToolManager::GetAllCategories(std::vector<CString>& categories)
 
 void CToolManager::LoadToolIcons(CImageList& imageList)
 {
-	// æ¸…ç©ºå›¾åƒåˆ—è¡¨
+	// Çå¿ÕÍ¼ÏñÁĞ±í
 	imageList.DeleteImageList();
-	
-	// åˆ›å»ºå›¾åƒåˆ—è¡¨ï¼ˆå¤§å›¾æ ‡ï¼‰
-	imageList.Create(48, 48, ILC_COLOR32 | ILC_MASK, 0, 10);
+
+	// ´´½¨Í¼ÏñÁĞ±í£¨´óÍ¼±ê£©
+	imageList.Create(48, 48, ILC_COLOR32, 0, 10);
+
+	// ÉèÖÃ±³¾°É«ÓëÏµÍ³´°¿Ú±³¾°Ò»ÖÂ£¬±ÜÃâÍ¼±êÏÔÊ¾ºÚµ×
+	imageList.SetBkColor(GetSysColor(COLOR_WINDOW));
 
 	int nIndex = 0;
 	for (auto& categoryPair : m_mapTools)
@@ -69,18 +72,18 @@ void CToolManager::LoadToolIcons(CImageList& imageList)
 		{
 			HICON hIcon = NULL;
 			
-			// ä»exeæ–‡ä»¶æå–å›¾æ ‡
+			// ´ÓexeÎÄ¼şÌáÈ¡Í¼±ê
 			if (PathFileExists(tool.strPath))
 			{
 				SHFILEINFO sfi = { 0 };
-				// ä½¿ç”¨SHGetFileInfoæå–å¤§å›¾æ ‡
+				// Ê¹ÓÃSHGetFileInfoÌáÈ¡´óÍ¼±ê
 				if (SHGetFileInfo(tool.strPath, 0, &sfi, sizeof(sfi), 
 					SHGFI_ICON | SHGFI_LARGEICON))
 				{
 					hIcon = sfi.hIcon;
 				}
 				
-				// å¦‚æœæå–å¤±è´¥ï¼Œä½¿ç”¨é»˜è®¤å›¾æ ‡
+				// Èç¹ûÌáÈ¡Ê§°Ü£¬Ê¹ÓÃÄ¬ÈÏÍ¼±ê
 				if (hIcon == NULL)
 				{
 					hIcon = (HICON)LoadImage(NULL, IDI_APPLICATION, IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
@@ -88,7 +91,7 @@ void CToolManager::LoadToolIcons(CImageList& imageList)
 			}
 			else
 			{
-				// æ–‡ä»¶ä¸å­˜åœ¨ï¼Œä½¿ç”¨é»˜è®¤å›¾æ ‡
+				// ÎÄ¼ş²»´æÔÚ£¬Ê¹ÓÃÄ¬ÈÏÍ¼±ê
 				hIcon = (HICON)LoadImage(NULL, IDI_APPLICATION, IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
 			}
 
@@ -102,9 +105,208 @@ void CToolManager::LoadToolIcons(CImageList& imageList)
 	}
 }
 
+bool CToolManager::LoadFromConfig(const CString& strConfigPath)
+{
+	// »ñÈ¡ÅäÖÃÎÄ¼şÂ·¾¶£¨Èç¹ûÎ´Ö¸¶¨£¬Ê¹ÓÃ³ÌĞòÄ¿Â¼ÏÂµÄ tools.ini£©
+	CString strIniPath = strConfigPath;
+	if (strIniPath.IsEmpty())
+	{
+		TCHAR szModulePath[MAX_PATH];
+		GetModuleFileName(NULL, szModulePath, MAX_PATH);
+		CString strModulePath = szModulePath;
+		int nPos = strModulePath.ReverseFind(_T('\\'));
+		if (nPos >= 0)
+		{
+			strIniPath = strModulePath.Left(nPos + 1) + _T("tools.ini");
+		}
+		else
+		{
+			strIniPath = _T("tools.ini");
+		}
+	}
+
+	// ¼ì²éÅäÖÃÎÄ¼şÊÇ·ñ´æÔÚ
+	if (!PathFileExists(strIniPath))
+	{
+		// Èç¹ûÅäÖÃÎÄ¼ş²»´æÔÚ£¬·µ»Øfalse
+		return false;
+	}
+
+	// ¶ÁÈ¡UTF-8±àÂëµÄÎÄ¼şÄÚÈİ£¨Ö§³ÖUnicodeºÍ¶à×Ö½Ú×Ö·û¼¯£©
+	HANDLE hFile = CreateFile(strIniPath, GENERIC_READ, FILE_SHARE_READ, NULL,
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return false;
+	}
+
+	// »ñÈ¡ÎÄ¼ş´óĞ¡
+	DWORD dwFileSize = GetFileSize(hFile, NULL);
+	if (dwFileSize == 0 || dwFileSize > 1024 * 1024) // ÏŞÖÆ×î´ó1MB
+	{
+		CloseHandle(hFile);
+		return false;
+	}
+
+	// ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+	char* pBuffer = new char[dwFileSize + 1];
+	DWORD dwBytesRead = 0;
+	if (!ReadFile(hFile, pBuffer, dwFileSize, &dwBytesRead, NULL))
+	{
+		delete[] pBuffer;
+		CloseHandle(hFile);
+		return false;
+	}
+	pBuffer[dwBytesRead] = 0;
+	CloseHandle(hFile);
+
+	// ¼ì²â²¢Ìø¹ıBOM£¨UTF-8 BOM: EF BB BF£©
+	int nStartPos = 0;
+	if (dwBytesRead >= 3 && (unsigned char)pBuffer[0] == 0xEF &&
+		(unsigned char)pBuffer[1] == 0xBB && (unsigned char)pBuffer[2] == 0xBF)
+	{
+		nStartPos = 3;
+	}
+
+	// ½«UTF-8×ª»»Îª¿í×Ö·û£¨Unicode£©»ò¶à×Ö½Ú×Ö·û
+#ifdef _UNICODE
+	// UnicodeÄ£Ê½£ºUTF-8 -> wchar_t
+	int nWideLen = MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos,
+		dwBytesRead - nStartPos, NULL, 0);
+	if (nWideLen <= 0)
+	{
+		delete[] pBuffer;
+		return false;
+	}
+
+	wchar_t* pWideBuffer = new wchar_t[nWideLen + 1];
+	MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos, dwBytesRead - nStartPos,
+		pWideBuffer, nWideLen);
+	pWideBuffer[nWideLen] = 0;
+	delete[] pBuffer;
+
+	// ½âÎöINIÎÄ¼şÄÚÈİ
+	CString strContent = pWideBuffer;
+	delete[] pWideBuffer;
+#else
+	// ¶à×Ö½ÚÄ£Ê½£ºUTF-8 -> ¶à×Ö½Ú×Ö·û£¨GBK£©
+	// ÏÈ×ª»»ÎªUnicode£¬ÔÙ×ª»»Îª¶à×Ö½Ú
+	int nWideLen = MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos,
+		dwBytesRead - nStartPos, NULL, 0);
+	if (nWideLen <= 0)
+	{
+		delete[] pBuffer;
+		return false;
+	}
+
+	wchar_t* pWideBuffer = new wchar_t[nWideLen + 1];
+	MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos, dwBytesRead - nStartPos,
+		pWideBuffer, nWideLen);
+	pWideBuffer[nWideLen] = 0;
+	delete[] pBuffer;
+
+	// ½«Unicode×ª»»Îª¶à×Ö½Ú×Ö·û
+	int nMultiByteLen = WideCharToMultiByte(CP_ACP, 0, pWideBuffer, nWideLen, NULL, 0, NULL, NULL);
+	if (nMultiByteLen <= 0)
+	{
+		delete[] pWideBuffer;
+		return false;
+	}
+
+	char* pMultiByteBuffer = new char[nMultiByteLen + 1];
+	WideCharToMultiByte(CP_ACP, 0, pWideBuffer, nWideLen, pMultiByteBuffer, nMultiByteLen, NULL, NULL);
+	pMultiByteBuffer[nMultiByteLen] = 0;
+	delete[] pWideBuffer;
+
+	// ½âÎöINIÎÄ¼şÄÚÈİ
+	CString strContent = pMultiByteBuffer;
+	delete[] pMultiByteBuffer;
+#endif
+
+	CString strCurrentCategory;
+	int nPos = 0;
+	CString strLine;
+
+	// ÖğĞĞ½âÎö
+	while (nPos < strContent.GetLength())
+	{
+		int nLineEnd = strContent.Find(_T('\n'), nPos);
+		if (nLineEnd == -1)
+		{
+			strLine = strContent.Mid(nPos);
+			nPos = strContent.GetLength();
+		}
+		else
+		{
+			strLine = strContent.Mid(nPos, nLineEnd - nPos);
+			nPos = nLineEnd + 1;
+		}
+
+		// È¥³ı»Ø³µ·ûºÍÇ°ºó¿Õ¸ñ
+		strLine.Trim();
+		if (strLine.IsEmpty())
+			continue;
+
+		// ¼ì²éÊÇ·ñÊÇ·ÖÀàĞĞ [·ÖÀàÃû]
+		if (strLine.GetLength() > 2 && strLine[0] == _T('[') &&
+			strLine[strLine.GetLength() - 1] == _T(']'))
+		{
+			strCurrentCategory = strLine.Mid(1, strLine.GetLength() - 2);
+			strCurrentCategory.Trim();
+		}
+		// ¼ì²éÊÇ·ñÊÇ¼üÖµ¶Ô ¹¤¾ßÃû³Æ=¹¤¾ßÂ·¾¶
+		else if (!strCurrentCategory.IsEmpty())
+		{
+			int nEqualPos = strLine.Find(_T('='));
+			if (nEqualPos > 0)
+			{
+				CString strToolName = strLine.Left(nEqualPos);
+				CString strToolPath = strLine.Mid(nEqualPos + 1);
+
+				// È¥³ı¿Õ¸ñºÍÒıºÅ
+				strToolName.Trim();
+				strToolPath.Trim();
+				if (strToolPath.GetLength() > 0 && strToolPath[0] == _T('"'))
+				{
+					strToolPath = strToolPath.Mid(1);
+				}
+				if (strToolPath.GetLength() > 0 && strToolPath[strToolPath.GetLength() - 1] == _T('"'))
+				{
+					strToolPath = strToolPath.Left(strToolPath.GetLength() - 1);
+				}
+
+				// Ìí¼Ó¹¤¾ß
+				if (!strToolName.IsEmpty() && !strToolPath.IsEmpty())
+				{
+					AddTool(strCurrentCategory, strToolName, strToolPath);
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+void CToolManager::LoadDefaultTools()
+{
+	// Ä¬ÈÏÅäÖÃ£¨×÷Îªºó±¸£©
+	AddTool(CString(_T("ÏµÍ³¹¤¾ß")), CString(_T("ÈÎÎñ¹ÜÀíÆ÷")), CString(_T("C:\\Windows\\System32\\taskmgr.exe")));
+	AddTool(CString(_T("ÏµÍ³¹¤¾ß")), CString(_T("×¢²á±í±à¼­Æ÷")), CString(_T("C:\\Windows\\regedit.exe")));
+	AddTool(CString(_T("ÏµÍ³¹¤¾ß")), CString(_T("ÏµÍ³ÅäÖÃ")), CString(_T("C:\\Windows\\System32\\msconfig.exe")));
+	AddTool(CString(_T("ÏµÍ³¹¤¾ß")), CString(_T("Éè±¸¹ÜÀíÆ÷")), CString(_T("C:\\Windows\\System32\\devmgmt.msc")));
+	AddTool(CString(_T("ÏµÍ³¹¤¾ß")), CString(_T("·şÎñ")), CString(_T("C:\\Windows\\System32\\services.msc")));
+	AddTool(CString(_T("ÏµÍ³¹¤¾ß")), CString(_T("Ö¤Êé¹ÜÀí")), CString(_T("C:\\Windows\\System32\\certmgr.msc")));
+
+	AddTool(CString(_T("´ÅÅÌ¹¤¾ß")), CString(_T("´ÅÅÌ¹ÜÀí")), CString(_T("C:\\Windows\\System32\\diskmgmt.msc")));
+	AddTool(CString(_T("´ÅÅÌ¹¤¾ß")), CString(_T("´ÅÅÌÇåÀí")), CString(_T("C:\\Windows\\System32\\cleanmgr.exe")));
+
+	AddTool(CString(_T("ÍøÂç¹¤¾ß")), CString(_T("ÍøÂçÁ¬½Ó")), CString(_T("C:\\Windows\\System32\\ncpa.cpl")));
+	AddTool(CString(_T("ÍøÂç¹¤¾ß")), CString(_T("ÃüÁîÌáÊ¾·û")), CString(_T("C:\\Windows\\System32\\cmd.exe")));
+}
+
 void CToolManager::Clear()
 {
-	// é‡Šæ”¾æ‰€æœ‰å›¾æ ‡å¥æŸ„
+	// ÊÍ·ÅËùÓĞÍ¼±ê¾ä±ú
 	for (auto& categoryPair : m_mapTools)
 	{
 		for (auto& tool : categoryPair.second)

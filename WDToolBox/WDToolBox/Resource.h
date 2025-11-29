@@ -1,6 +1,6 @@
-О╩©//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ Г■÷Ф┬░Г └Е▄┘Е░╚Ф√┤Д╩╤Ц─┌
-// Г■╠ WDToolBox.rc Д╫©Г■╗
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ иЗЁи╣д╟Э╨╛нд╪Ч║ё
+// си WDToolBox.rc й╧сц
 //
 #define IDR_MAINFRAME					128
 #define IDM_ABOUTBOX					0x0010
@@ -16,7 +16,7 @@
 #define IDC_BTN_ADD_LOG						1006
 #define IDC_BTN_SAVE_LOG					1007
 
-// Ф√╟Е╞╧Х╠║Г └Д╦▀Д╦─Г╩└И╩≤Х╝╓Е─╪
+// пб╤тоС╣добр╩вИд╛хож╣
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
