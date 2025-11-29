@@ -5,7 +5,7 @@
 
 #include "ToolInfo.h"
 #include "ProcessLauncher.h"
-#include "WorkLogManager.h"
+#include "WorkLogWriter.h"
 
 // CWDToolBoxDlg 对话框
 class CWDToolBoxDlg : public CDialogEx
@@ -47,7 +47,7 @@ protected:
 	CToolManager m_toolManager;
 
 	CProcessLauncher m_launcher;
-	CWorkLogManager m_workLogger;
+	CWorkLogWriter m_workLogger;
 
 	// 布局参数
 	int m_nCategoryListWidth;    // 左侧分类列表宽度（可调整）

@@ -8,12 +8,12 @@ struct WorkLogEntry
 	time_t time;
 };
 
-class CWorkLogManager :
+class CWorkLogWriter :
     public CExecutor
 {
 public:
-	CWorkLogManager();
-	virtual ~CWorkLogManager();
+	CWorkLogWriter();
+	virtual ~CWorkLogWriter();
 
 	virtual BOOL Execute(const CString& strContent);
 

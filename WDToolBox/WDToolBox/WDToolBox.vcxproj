@@ -275,7 +275,7 @@
     <ClInclude Include="ToolInfo.h" />
     <ClInclude Include="WDToolBox.h" />
     <ClInclude Include="WDToolBoxDlg.h" />
-    <ClInclude Include="WorkLogManager.h" />
+    <ClInclude Include="WorkLogWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Executor.cpp" />
