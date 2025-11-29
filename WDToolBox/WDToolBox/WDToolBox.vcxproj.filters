@@ -36,6 +36,15 @@
     <ClInclude Include="ToolInfo.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Executor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessLauncher.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkLogManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WDToolBox.cpp">
@@ -48,6 +57,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Executor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessLauncher.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkLogManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

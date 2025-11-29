@@ -1,5 +1,5 @@
 #pragma once
-#include "CExecutor.h"
+#include "Executor.h"
 
 //CProcessLauncher: 根据传入的文件路径打开进程或者文件
 
@@ -12,8 +12,9 @@ public:
 public:
 	virtual BOOL Execute(const CString& strContent) override
 	{
-		LaunchTool(strContent);
+		 return LaunchTool(strContent);
 	}
+	
 	BOOL LaunchTool(const CString& strPath);
 };
 

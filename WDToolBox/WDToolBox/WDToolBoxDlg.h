@@ -5,6 +5,8 @@
 #pragma once
 
 #include "ToolInfo.h"
+#include "ProcessLauncher.h"
+#include "WorkLogManager.h"
 
 // CWDToolBoxDlg 对话框
 class CWDToolBoxDlg : public CDialogEx
@@ -32,9 +34,12 @@ protected:
 	CImageList m_imageList;      // 图标图像列表
 	CStatic m_splitter;          // 分割条（用于调整左右控件宽度）
 
-	// 工具管理器
+	// 管理器
 	CToolManager m_toolManager;
 
+	CProcessLauncher m_launcher;
+	CWorkLogManager m_workLogger;
+	
 	// 布局参数
 	int m_nCategoryListWidth;    // 左侧分类列表宽度（可调整）
 	BOOL m_bDragging;             // 是否正在拖动分割条
@@ -59,7 +64,6 @@ protected:
 	void LoadToolCategories();
 	void LoadToolsFromConfig(const CString& strConfigPath);
 	void UpdateToolList(const CString& strCategory);
-	void LaunchTool(const CString& strPath);
 
 	DECLARE_MESSAGE_MAP()
 };

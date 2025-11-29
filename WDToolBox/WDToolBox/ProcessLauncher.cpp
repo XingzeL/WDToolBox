@@ -5,7 +5,7 @@
 BOOL CProcessLauncher::LaunchTool(const CString& strPath)
 {
 	if (strPath.IsEmpty())
-		return;
+		return FALSE;
 
 	HINSTANCE hResult = NULL;
 	CString strPathLower = strPath;
