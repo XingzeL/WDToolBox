@@ -28,11 +28,21 @@ public:
 protected:
 	HICON m_hIcon;
 
-	// 控件
+	// 分页控件
+	CTabCtrl m_tabCtrl;          // 标签页控件
+
+	// 工具管理器分页控件
 	CListCtrl m_listCategory;    // 左侧分类列表
 	CListCtrl m_listTool;        // 右侧工具图标列表
-	CImageList m_imageList;      // 图标图像列表
 	CStatic m_splitter;          // 分割条（用于调整左右控件宽度）
+
+	// 工作日志分页控件
+	CListCtrl m_listWorkLog;     // 工作日志列表
+	CEdit m_editWorkLog;         // 工作日志编辑框
+	CButton m_btnAddLog;         // 添加日志按钮
+	CButton m_btnSaveLog;        // 保存日志按钮
+
+	CImageList m_imageList;      // 图标图像列表
 
 	// 管理器
 	CToolManager m_toolManager;
@@ -58,12 +68,19 @@ protected:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedBtnAddLog();
+	afx_msg void OnBnClickedBtnSaveLog();
 	
 	// 辅助函数
 	void InitializeControls();
 	void LoadToolCategories();
 	void LoadToolsFromConfig(const CString& strConfigPath);
 	void UpdateToolList(const CString& strCategory);
+	void InitializeWorkLogPage();
+	void ShowTabPage(int nPage);
+	void LoadWorkLogData();
+	void SaveWorkLogData();
 
 	DECLARE_MESSAGE_MAP()
 };

@@ -84,6 +84,9 @@ BEGIN_MESSAGE_MAP(CWDToolBoxDlg, CDialogEx)
 	ON_WM_SETCURSOR()
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_CATEGORY_LIST, &CWDToolBoxDlg::OnLvnItemchangedCategoryList)
 	ON_NOTIFY(NM_DBLCLK, IDC_TOOL_LIST, &CWDToolBoxDlg::OnNMDblclkToolList)
+	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB_MAIN, &CWDToolBoxDlg::OnTcnSelchangeTabMain)
+	ON_BN_CLICKED(IDC_BTN_ADD_LOG, &CWDToolBoxDlg::OnBnClickedBtnAddLog)
+	ON_BN_CLICKED(IDC_BTN_SAVE_LOG, &CWDToolBoxDlg::OnBnClickedBtnSaveLog)
 END_MESSAGE_MAP()
 
 
@@ -197,25 +200,63 @@ void CWDToolBoxDlg::InitializeControls()
 	CRect rect;
 	GetClientRect(&rect);
 
-	// 创建左侧分类列表控件
-	CRect rectCategory(10, 10, 10 + m_nCategoryListWidth, rect.Height() - 10);
+	// 创建标签页控件
+	CRect rectTab(10, 10, rect.Width() - 10, rect.Height() - 10);
+	m_tabCtrl.Create(WS_CHILD | WS_VISIBLE | TCS_TABS | TCS_FOCUSNEVER,
+		rectTab, this, IDC_TAB_MAIN);
+	m_tabCtrl.InsertItem(0, _T("ToolBox"));
+	m_tabCtrl.InsertItem(1, _T("WorkLog"));
+
+	// 创建工具管理器分页控件
+	CRect rectPage;
+	m_tabCtrl.GetClientRect(&rectPage);
+	m_tabCtrl.AdjustRect(FALSE, &rectPage);
+	rectPage.OffsetRect(10, 35); // 相对于标签页的偏移
+	rectPage.right -= 10;
+	rectPage.bottom -= 10;
+
+	// 左侧分类列表
+	CRect rectCategory(rectPage.left, rectPage.top,
+		rectPage.left + m_nCategoryListWidth, rectPage.bottom);
 	m_listCategory.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
 		rectCategory, this, IDC_CATEGORY_LIST);
 	m_listCategory.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	m_listCategory.InsertColumn(0, _T("工具分类"), LVCFMT_LEFT, m_nCategoryListWidth - 20);
 
-	// 创建分割条（用于调整左右控件宽度）
-	CRect rectSplitter(10 + m_nCategoryListWidth, 10, 10 + m_nCategoryListWidth + 4, rect.Height() - 10);
-	m_splitter.Create(_T(""), WS_CHILD | WS_VISIBLE | SS_NOTIFY | SS_BLACKRECT, rectSplitter, this, IDC_SPLITTER);
-	m_splitter.SetWindowPos(&m_listCategory, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	// 分割条
+	CRect rectSplitter(rectCategory.right, rectPage.top, rectCategory.right + 4, rectPage.bottom);
+	m_splitter.Create(_T(""), WS_CHILD | WS_VISIBLE | SS_NOTIFY | SS_BLACKRECT,
+		rectSplitter, this, IDC_SPLITTER);
 
-	// 创建右侧工具图标列表控件
-	CRect rectTool(10 + m_nCategoryListWidth + 4 + 6, 10, rect.Width() - 10, rect.Height() - 10);
+	// 右侧工具列表
+	CRect rectTool(rectSplitter.right + 6, rectPage.top, rectPage.right, rectPage.bottom);
 	m_listTool.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_ICON | LVS_AUTOARRANGE,
 		rectTool, this, IDC_TOOL_LIST);
 	m_listTool.SetExtendedStyle(LVS_EX_DOUBLEBUFFER);
 
-	// 注意：图像列表将在LoadToolCategories中创建和设置
+	// 创建工作日志分页控件（初始隐藏）
+	CRect rectWorkLog(rectPage);
+	m_listWorkLog.Create(WS_CHILD | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
+		CRect(rectWorkLog.left, rectWorkLog.top, rectWorkLog.right, rectWorkLog.bottom - 100),
+		this, IDC_WORKLOG_LIST);
+	m_listWorkLog.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	m_listWorkLog.InsertColumn(0, _T("时间"), LVCFMT_LEFT, 150);
+	m_listWorkLog.InsertColumn(1, _T("内容"), LVCFMT_LEFT, rectWorkLog.Width() - 170);
+
+	m_editWorkLog.Create(WS_CHILD | WS_BORDER | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
+		CRect(rectWorkLog.left, rectWorkLog.bottom - 95, rectWorkLog.right - 120, rectWorkLog.bottom - 40),
+		this, IDC_WORKLOG_EDIT);
+
+	m_btnAddLog.Create(_T("添加日志"), WS_CHILD | BS_PUSHBUTTON,
+		CRect(rectWorkLog.right - 110, rectWorkLog.bottom - 95, rectWorkLog.right - 10, rectWorkLog.bottom - 70),
+		this, IDC_BTN_ADD_LOG);
+
+	m_btnSaveLog.Create(_T("保存日志"), WS_CHILD | BS_PUSHBUTTON,
+		CRect(rectWorkLog.right - 110, rectWorkLog.bottom - 65, rectWorkLog.right - 10, rectWorkLog.bottom - 40),
+		this, IDC_BTN_SAVE_LOG);
+
+	// 初始显示第一个分页
+	ShowTabPage(0);
 }
 
 // 从配置文件加载工具
@@ -518,28 +559,63 @@ void CWDToolBoxDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
 
-	if (m_listCategory.GetSafeHwnd() && m_listTool.GetSafeHwnd() && m_splitter.GetSafeHwnd())
+	if (nType == SIZE_MINIMIZED)
+		return;
+
+	if (m_tabCtrl.GetSafeHwnd())
 	{
+		// 调整标签页控件大小
+		CRect rectTab(10, 10, cx - 10, cy - 10);
+		m_tabCtrl.MoveWindow(&rectTab);
+
+		// 获取分页内容区域
+		CRect rectPage;
+		m_tabCtrl.GetClientRect(&rectPage);
+		m_tabCtrl.AdjustRect(FALSE, &rectPage);
+		rectPage.OffsetRect(10, 35);
+		rectPage.right = cx - 20;
+		rectPage.bottom = cy - 20;
+
 		// 确保左侧列表宽度在合理范围内（最小150，最大不超过窗口宽度的50%）
 		if (m_nCategoryListWidth < 150)
 			m_nCategoryListWidth = 150;
-		if (m_nCategoryListWidth > cx / 2)
-			m_nCategoryListWidth = cx / 2;
+		if (m_nCategoryListWidth > rectPage.Width() / 2)
+			m_nCategoryListWidth = rectPage.Width() / 2;
 
-		// 调整左侧分类列表大小
-		m_listCategory.SetWindowPos(NULL, 10, 10, m_nCategoryListWidth, cy - 20, SWP_NOZORDER);
-		// 更新列宽以适应新的控件宽度
-		m_listCategory.SetColumnWidth(0, m_nCategoryListWidth - 20);
+		// 调整工具管理器分页控件
+		CRect rectCategory(rectPage.left, rectPage.top,
+			rectPage.left + m_nCategoryListWidth, rectPage.bottom);
+		m_listCategory.MoveWindow(&rectCategory);
 
-		// 调整分割条位置
-		m_splitter.SetWindowPos(NULL, 10 + m_nCategoryListWidth, 10, 4, cy - 20, SWP_NOZORDER);
+		CRect rectSplitter(rectCategory.right, rectPage.top, rectCategory.right + 4, rectPage.bottom);
+		m_splitter.MoveWindow(&rectSplitter);
 
-		// 调整右侧工具列表大小
-		int nRightListLeft = 10 + m_nCategoryListWidth + 4 + 6;
-		int nRightListWidth = cx - nRightListLeft - 10;
-		if (nRightListWidth > 0)
+		CRect rectTool(rectSplitter.right + 6, rectPage.top, rectPage.right, rectPage.bottom);
+		m_listTool.MoveWindow(&rectTool);
+
+		// 调整工作日志分页控件
+		m_listWorkLog.MoveWindow(&CRect(rectPage.left, rectPage.top,
+			rectPage.right, rectPage.bottom - 100));
+
+		m_editWorkLog.MoveWindow(&CRect(rectPage.left, rectPage.bottom - 95,
+			rectPage.right - 120, rectPage.bottom - 40));
+
+		CRect rectBtn(rectPage.right - 110, rectPage.bottom - 95,
+			rectPage.right - 10, rectPage.bottom - 70);
+		m_btnAddLog.MoveWindow(&rectBtn);
+
+		rectBtn.OffsetRect(0, 30);
+		m_btnSaveLog.MoveWindow(&rectBtn);
+
+		// 重新调整列宽
+		if (m_listCategory.GetSafeHwnd())
 		{
-			m_listTool.SetWindowPos(NULL, nRightListLeft, 10, nRightListWidth, cy - 20, SWP_NOZORDER);
+			m_listCategory.SetColumnWidth(0, m_nCategoryListWidth - 20);
+		}
+		if (m_listWorkLog.GetSafeHwnd())
+		{
+			m_listWorkLog.SetColumnWidth(0, 150);
+			m_listWorkLog.SetColumnWidth(1, rectPage.Width() - 170);
 		}
 	}
 }
@@ -635,6 +711,105 @@ BOOL CWDToolBoxDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	}
 	
 	return CDialogEx::OnSetCursor(pWnd, nHitTest, message);
+}
+
+// 分页切换事件处理
+void CWDToolBoxDlg::OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	int nCurSel = m_tabCtrl.GetCurSel();
+	ShowTabPage(nCurSel);
+	*pResult = 0;
+}
+
+// 显示指定分页
+void CWDToolBoxDlg::ShowTabPage(int nPage)
+{
+	// 隐藏所有分页控件
+	m_listCategory.ShowWindow(SW_HIDE);
+	m_listTool.ShowWindow(SW_HIDE);
+	m_splitter.ShowWindow(SW_HIDE);
+	m_listWorkLog.ShowWindow(SW_HIDE);
+	m_editWorkLog.ShowWindow(SW_HIDE);
+	m_btnAddLog.ShowWindow(SW_HIDE);
+	m_btnSaveLog.ShowWindow(SW_HIDE);
+
+	switch (nPage)
+	{
+	case 0: // 工具管理器分页
+		m_listCategory.ShowWindow(SW_SHOW);
+		m_listTool.ShowWindow(SW_SHOW);
+		m_splitter.ShowWindow(SW_SHOW);
+		break;
+	case 1: // 工作日志分页
+		m_listWorkLog.ShowWindow(SW_SHOW);
+		m_editWorkLog.ShowWindow(SW_SHOW);
+		m_btnAddLog.ShowWindow(SW_SHOW);
+		m_btnSaveLog.ShowWindow(SW_SHOW);
+		InitializeWorkLogPage();
+		break;
+	}
+}
+
+// 初始化工作日志分页
+void CWDToolBoxDlg::InitializeWorkLogPage()
+{
+	if (m_listWorkLog.GetItemCount() == 0)
+	{
+		LoadWorkLogData();
+	}
+}
+
+// 加载工作日志数据
+void CWDToolBoxDlg::LoadWorkLogData()
+{
+	m_listWorkLog.DeleteAllItems();
+	std::vector<WorkLogEntry> logs;
+	m_workLogger.GetAllLogs(logs);
+
+	for (size_t i = 0; i < logs.size(); i++)
+	{
+		CString strTime = CTime(logs[i].time).Format(_T("%Y-%m-%d %H:%M:%S"));
+		CString strContent = logs[i].content;
+
+		m_listWorkLog.InsertItem((int)i, strTime);
+		m_listWorkLog.SetItemText((int)i, 1, strContent);
+	}
+}
+
+// 保存工作日志数据
+void CWDToolBoxDlg::SaveWorkLogData()
+{
+	m_workLogger.SaveLogs();
+}
+
+// 添加日志按钮事件
+void CWDToolBoxDlg::OnBnClickedBtnAddLog()
+{
+	CString strContent;
+	m_editWorkLog.GetWindowText(strContent);
+	if (!strContent.IsEmpty())
+	{
+		// 添加到列表
+		int nItem = m_listWorkLog.GetItemCount();
+		CTime time = CTime::GetCurrentTime();
+		CString strTime = time.Format(_T("%Y-%m-%d %H:%M:%S"));
+
+		m_listWorkLog.InsertItem(nItem, strTime);
+		m_listWorkLog.SetItemText(nItem, 1, strContent);
+
+		// 清空编辑框
+		m_editWorkLog.SetWindowText(_T(""));
+
+		// 执行工作日志处理
+		m_workLogger.Execute(strContent);
+	}
+}
+
+// 保存日志按钮事件
+void CWDToolBoxDlg::OnBnClickedBtnSaveLog()
+{
+	SaveWorkLogData();
+	MessageBox(_T("工作日志已保存！"), _T("提示"), MB_OK | MB_ICONINFORMATION);
 }
 
 
