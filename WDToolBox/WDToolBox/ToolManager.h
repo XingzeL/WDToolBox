@@ -1,4 +1,4 @@
-// ToolInfo.h: 工具信息数据结构
+// ToolManager.h: 工具管理器类
 //
 
 #pragma once

@@ -2,7 +2,7 @@
 //
 
 #include "pch.h"
-#include "ToolInfo.h"
+#include "ToolManager.h"
 #include <shlwapi.h>
 #include <shellapi.h>
 #include <shlobj.h>

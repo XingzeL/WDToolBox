@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "ToolInfo.h"
+#include "ToolManager.h"
 #include "ProcessLauncher.h"
 #include "WorkLogManager.h"
 #include "WorkLogWriter.h"
