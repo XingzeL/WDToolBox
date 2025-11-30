@@ -51,6 +51,15 @@
     <ClInclude Include="WriteWorkLogDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TabPageBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolManagerPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkLogPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WDToolBox.cpp">
@@ -78,6 +87,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WriteWorkLogDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolManagerPage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkLogPage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,6 +7,9 @@
 #include "ProcessLauncher.h"
 #include "WorkLogManager.h"
 #include "WorkLogWriter.h"
+#include "TabPageBase.h"
+#include "ToolManagerPage.h"
+#include "WorkLogPage.h"
 
 // CWDToolBoxDlg 对话框
 class CWDToolBoxDlg : public CDialogEx
@@ -31,15 +34,9 @@ protected:
 	// 分页控件
 	CTabCtrl m_tabCtrl;          // 标签页控件
 
-	// 工具管理器分页控件
-	CListCtrl m_listCategory;    // 左侧分类列表
-	CListCtrl m_listTool;        // 右侧工具图标列表
-	CStatic m_splitter;          // 分割条（用于调整左右控件宽度）
-
-	// 工作日志分页控件
-	CListCtrl m_listLogCategory; // 左侧日志分类列表
-	CListCtrl m_listLogLibrary;  // 右侧日志库列表
-	CStatic m_logSplitter;       // 日志分页的分割条
+	// 分页类对象（每个分页封装自己的控件和逻辑）
+	CToolManagerPage m_toolManagerPage;  // 工具管理器分页
+	CWorkLogPage m_workLogPage;           // 工作日志分页
 
 	CImageList m_imageList;      // 图标图像列表
 
@@ -52,9 +49,6 @@ protected:
 	
 	// 布局参数
 	int m_nCategoryListWidth;    // 左侧分类列表宽度（可调整）
-	BOOL m_bDragging;             // 是否正在拖动分割条
-	int m_nDragStartX;            // 拖动开始时的X坐标
-	int m_nDragStartWidth;        // 拖动开始时的左侧列表宽度
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
@@ -71,6 +65,7 @@ protected:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnCaptureChanged(CWnd* pWnd);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+	
 	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
 
 	// 辅助函数
