@@ -281,6 +281,8 @@
     <ClInclude Include="TabPageBase.h" />
     <ClInclude Include="ToolManagerPage.h" />
     <ClInclude Include="WorkLogPage.h" />
+    <ClInclude Include="Observer.h" />
+    <ClInclude Include="ConfigReader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WriteWorkLogDlg.cpp" />
@@ -301,6 +303,8 @@
     <ClCompile Include="WorkLogWriter.cpp" />
     <ClCompile Include="ToolManagerPage.cpp" />
     <ClCompile Include="WorkLogPage.cpp" />
+    <ClCompile Include="Observer.cpp" />
+    <ClCompile Include="ConfigReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WDToolBox.rc" />

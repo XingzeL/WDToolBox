@@ -3,10 +3,12 @@
 
 #include "pch.h"
 #include "WorkLogPage.h"
+#include "WorkLogManager.h"
 #include "Resource.h"
 
 CWorkLogPage::CWorkLogPage()
 	: m_pParent(nullptr)
+	, m_pWorkLogManager(nullptr)
 	, m_nLeftWidth(200)
 	, m_bDragging(FALSE)
 	, m_nDragStartX(0)
@@ -195,5 +197,85 @@ BOOL CWorkLogPage::IsPointOnSplitter(CPoint point)
 	rectSplitter.InflateRect(5, 0);
 
 	return rectSplitter.PtInRect(point);
+}
+
+// IObserver 接口实现
+void CWorkLogPage::OnDataChanged(const CString& strEventType, void* pData)
+{
+	if (m_pWorkLogManager == nullptr)
+		return;
+
+	// 根据事件类型更新UI
+	if (strEventType == _T("ConfigLoaded") || strEventType == _T("CategoryAdded"))
+	{
+		// 配置加载或分类添加，刷新分类列表
+		RefreshCategoryList();
+	}
+	else if (strEventType == _T("LibraryAdded"))
+	{
+		// 库添加，刷新库列表
+		RefreshLibraryList();
+	}
+	else if (strEventType == _T("DataCleared"))
+	{
+		// 数据清空，清空列表
+		if (m_listLogCategory.GetSafeHwnd())
+		{
+			m_listLogCategory.DeleteAllItems();
+		}
+		if (m_listLogLibrary.GetSafeHwnd())
+		{
+			m_listLogLibrary.DeleteAllItems();
+		}
+	}
+}
+
+// 刷新分类列表
+void CWorkLogPage::RefreshCategoryList()
+{
+	if (m_pWorkLogManager == nullptr || !m_listLogCategory.GetSafeHwnd())
+		return;
+
+	m_listLogCategory.DeleteAllItems();
+
+	std::vector<CString> categories;
+	m_pWorkLogManager->GetAllCategories(categories);
+
+	for (size_t i = 0; i < categories.size(); i++)
+	{
+		int nIndex = m_listLogCategory.InsertItem((int)i, categories[i]);
+		m_listLogCategory.SetItemData(nIndex, i);
+	}
+
+	// 默认选择第一项
+	if (m_listLogCategory.GetItemCount() > 0)
+	{
+		m_listLogCategory.SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+		RefreshLibraryList();
+	}
+}
+
+// 刷新日志库列表
+void CWorkLogPage::RefreshLibraryList()
+{
+	if (m_pWorkLogManager == nullptr || !m_listLogLibrary.GetSafeHwnd())
+		return;
+
+	// 获取当前选中的分类
+	int nSel = m_listLogCategory.GetNextItem(-1, LVNI_SELECTED);
+	if (nSel < 0)
+		return;
+
+	CString strCategory = m_listLogCategory.GetItemText(nSel, 0);
+	if (strCategory.IsEmpty())
+		return;
+
+	m_listLogLibrary.DeleteAllItems();
+
+	std::vector<LogLibraryInfo>& libraries = m_pWorkLogManager->GetLibrariesByCategory(strCategory);
+	for (size_t i = 0; i < libraries.size(); i++)
+	{
+		m_listLogLibrary.InsertItem((int)i, libraries[i].strName);
+	}
 }
 

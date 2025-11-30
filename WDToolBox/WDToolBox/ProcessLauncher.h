@@ -3,7 +3,7 @@
 
 //CProcessLauncher: 根据传入的文件路径打开进程或者文件
 
-class CProcessLauncher : CExecutor
+class CProcessLauncher : public CExecutor
 {
 public:
 	CProcessLauncher() {};
@@ -14,7 +14,7 @@ public:
 	{
 		 return LaunchTool(strContent);
 	}
-	
+
 	BOOL LaunchTool(const CString& strPath);
 };
 

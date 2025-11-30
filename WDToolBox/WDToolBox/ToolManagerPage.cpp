@@ -3,10 +3,12 @@
 
 #include "pch.h"
 #include "ToolManagerPage.h"
+#include "ToolManager.h"  // 需要包含完整定义，因为使用了 CToolManager 的成员函数
 #include "Resource.h"
 
 CToolManagerPage::CToolManagerPage()
 	: m_pParent(nullptr)
+	, m_pToolManager(nullptr)
 	, m_nLeftWidth(200)
 	, m_bDragging(FALSE)
 	, m_nDragStartX(0)
@@ -175,5 +177,94 @@ BOOL CToolManagerPage::IsPointOnSplitter(CPoint point)
 	rectSplitter.InflateRect(5, 0);
 
 	return rectSplitter.PtInRect(point);
+}
+
+// IObserver 接口实现
+void CToolManagerPage::OnDataChanged(const CString& strEventType, void* pData)
+{
+	if (m_pToolManager == nullptr)
+		return;
+
+	// 根据事件类型更新UI
+	if (strEventType == _T("ConfigLoaded") || strEventType == _T("CategoryAdded"))
+	{
+		// 配置加载或分类添加，刷新分类列表
+		RefreshCategoryList();
+	}
+	else if (strEventType == _T("ToolAdded"))
+	{
+		// 工具添加，刷新工具列表
+		RefreshToolList();
+	}
+	else if (strEventType == _T("DataCleared"))
+	{
+		// 数据清空，清空列表
+		if (m_listCategory.GetSafeHwnd())
+		{
+			m_listCategory.DeleteAllItems();
+		}
+		if (m_listTool.GetSafeHwnd())
+		{
+			m_listTool.DeleteAllItems();
+		}
+	}
+}
+
+// 刷新分类列表
+void CToolManagerPage::RefreshCategoryList()
+{
+	if (m_pToolManager == nullptr || !m_listCategory.GetSafeHwnd())
+		return;
+
+	m_listCategory.DeleteAllItems();
+
+	std::vector<CString> categories;
+	m_pToolManager->GetAllCategories(categories);
+
+	for (size_t i = 0; i < categories.size(); i++)
+	{
+		int nIndex = m_listCategory.InsertItem((int)i, categories[i]);
+		m_listCategory.SetItemData(nIndex, i);
+	}
+
+	// 默认选择第一项
+	if (m_listCategory.GetItemCount() > 0)
+	{
+		m_listCategory.SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+		RefreshToolList();
+	}
+}
+
+// 刷新工具列表
+void CToolManagerPage::RefreshToolList()
+{
+	if (m_pToolManager == nullptr || !m_listTool.GetSafeHwnd())
+		return;
+
+	// 获取当前选中的分类
+	int nSel = m_listCategory.GetNextItem(-1, LVNI_SELECTED);
+	if (nSel < 0)
+		return;
+
+	CString strCategory = m_listCategory.GetItemText(nSel, 0);
+	if (strCategory.IsEmpty())
+		return;
+
+	m_listTool.DeleteAllItems();
+
+	std::vector<ToolInfo>& tools = m_pToolManager->GetToolsByCategory(strCategory);
+	for (size_t i = 0; i < tools.size(); i++)
+	{
+		LVITEM lvItem = { 0 };
+		lvItem.mask = LVIF_TEXT | LVIF_IMAGE;
+		lvItem.iItem = (int)i;
+		lvItem.iSubItem = 0;
+		lvItem.pszText = (LPTSTR)(LPCTSTR)tools[i].strName;
+		lvItem.iImage = tools[i].nIconIndex;
+		lvItem.lParam = (LPARAM)&tools[i];
+
+		int nIndex = m_listTool.InsertItem(&lvItem);
+		m_listTool.SetItemData(nIndex, (DWORD_PTR)&tools[i]);
+	}
 }
 

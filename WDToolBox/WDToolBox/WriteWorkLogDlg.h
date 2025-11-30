@@ -1,8 +1,8 @@
-ï»¿#pragma once
+#pragma once
 #include "afxdialogex.h"
 
 
-// CWriteWorkLogDlg å¯¹è¯æ¡†
+// CWriteWorkLogDlg ¶Ô»°¿ò
 
 class CWriteWorkLogDlg : public CDialogEx
 {
@@ -14,26 +14,26 @@ class CWriteWorkLogDlg : public CDialogEx
 		CWriteWorkLogDlg dlg(this);
 		dlg.SetProjectInfo(strProjectInfo);
 		dlg.SetLibraryInfo(strLibraryInfo);
-		dlg.DoModal();	
+		dlg.DoModal();
 		m_workLogWriter.Execute(dlg.GetLogContent());
 */
 
 public:
 
-	CWriteWorkLogDlg(CWnd* pParent = nullptr);   // æ ‡å‡†æ„é€ å‡½æ•°
+	CWriteWorkLogDlg(CWnd* pParent = nullptr);   // ±ê×¼¹¹Ôìº¯Êı
 	virtual ~CWriteWorkLogDlg();
 
 	void SetProjectInfo(const CString& strProjectInfo);
 	void SetLibraryInfo(const CString& strLibraryInfo);
 	CString GetLogContent();
 
-// å¯¹è¯æ¡†æ•°æ®
+// ¶Ô»°¿òÊı¾İ
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_WRITEWORKLOG };
 #endif
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV æ”¯æŒ
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 	virtual BOOL OnInitDialog();
 	afx_msg void OnOK();
 	afx_msg void OnCancel();
@@ -42,13 +42,13 @@ private:
 	CString m_strProjectInfo;
 	CString m_strLibraryInfo;
 	CString m_strLogContent;
-	
-	// æ§ä»¶å˜é‡
-	CEdit m_editTaskType;      // ä»»åŠ¡ç±»å‹ï¼ˆåªè¯»æ˜¾ç¤ºï¼‰
-	CEdit m_editLibName;       // ä¿®æ”¹åº“åï¼ˆåªè¯»æ˜¾ç¤ºï¼‰
-	CComboBox m_comboTaskNature; // ä»»åŠ¡æ€§è´¨ä¸‹æ‹‰æ¡†
-	CComboBox m_comboTimeUsed;   // ç”¨æ—¶ä¸‹æ‹‰æ¡†
-	CEdit m_editWorkDesc;       // å·¥ä½œæè¿°ç¼–è¾‘æ¡†
+
+	// ¿Ø¼ş±äÁ¿
+	CEdit m_editTaskType;      // ÈÎÎñÀàĞÍ£¨Ö»¶ÁÏÔÊ¾£©
+	CEdit m_editLibName;       // ĞŞ¸Ä¿âÃû£¨Ö»¶ÁÏÔÊ¾£©
+	CComboBox m_comboTaskNature; // ÈÎÎñĞÔÖÊÏÂÀ­¿ò
+	CComboBox m_comboTimeUsed;   // ÓÃÊ±ÏÂÀ­¿ò
+	CEdit m_editWorkDesc;       // ¹¤×÷ÃèÊö±à¼­¿ò
 
 
 };

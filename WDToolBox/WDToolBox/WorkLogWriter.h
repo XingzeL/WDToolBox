@@ -6,10 +6,9 @@ struct WorkLogEntry
 {
 	CString content;
 	time_t time;
-}; //±£¡Ù
+}; //°¿???
 
-class CWorkLogWriter :
-    public CExecutor
+class CWorkLogWriter : public CExecutor
 {
 public:
 	CWorkLogWriter() {};

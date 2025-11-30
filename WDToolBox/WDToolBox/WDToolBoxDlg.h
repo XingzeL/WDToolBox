@@ -4,12 +4,11 @@
 #pragma once
 
 #include "ToolManager.h"
-#include "ProcessLauncher.h"
 #include "WorkLogManager.h"
-#include "WorkLogWriter.h"
 #include "TabPageBase.h"
 #include "ToolManagerPage.h"
 #include "WorkLogPage.h"
+#include "ConfigReader.h"
 
 // CWDToolBoxDlg 对话框
 class CWDToolBoxDlg : public CDialogEx
@@ -40,13 +39,14 @@ protected:
 
 	CImageList m_imageList;      // 图标图像列表
 
-	// 管理器
+	// 配置读取器（统一管理）
+	CIniConfigReader m_toolConfigReader;    // 工具配置读取器
+	CIniConfigReader m_logConfigReader;     // 日志配置读取器
+
+	// 管理器（使用依赖注入，内部管理 Executor）
 	CToolManager m_toolManager;
 	CWorkLogManager m_workLogger;
 
-	CProcessLauncher m_launcher;
-	CWorkLogWriter m_workLogWriter;
-	
 	// 布局参数
 	int m_nCategoryListWidth;    // 左侧分类列表宽度（可调整）
 
@@ -65,7 +65,7 @@ protected:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnCaptureChanged(CWnd* pWnd);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-	
+
 	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
 
 	// 辅助函数

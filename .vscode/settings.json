@@ -1,7 +1,31 @@
 {
+    // 文件编码设置
+    "files.encoding": "gb2312",
+    "files.autoGuessEncoding": true,
+
+    // C/C++ 文件特定编码
+    "[cpp]": {
+        "files.encoding": "gb2312"
+    },
+    "[c]": {
+        "files.encoding": "gb2312"
+    },
+    "[h]": {
+        "files.encoding": "gb2312"
+    },
+    "[hpp]": {
+        "files.encoding": "gb2312"
+    },
+
+    // 文件关联
     "files.associations": {
-        "*.json": "jsonc",
-        "*.rh": "cpp",
-        "vector": "cpp"
-    }
+        "*.h": "cpp",
+        "*.cpp": "cpp",
+        "*.hpp": "cpp"
+    },
+
+    // 其他有用的设置
+    "files.eol": "\r\n",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true
 }

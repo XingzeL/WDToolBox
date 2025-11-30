@@ -1,10 +1,14 @@
 #pragma once
 #include "TabPageBase.h"
+#include "Observer.h"
 #include "afxcmn.h"
 
-// 工作日志分页类
+// 前向声明
+class CWorkLogManager;
+
+// 工作日志分页类（实现观察者模式）
 // 封装工作日志分页的所有逻辑：控件、布局、分割条等
-class CWorkLogPage : public ITabPage
+class CWorkLogPage : public ITabPage, public IObserver
 {
 public:
 	CWorkLogPage();
@@ -23,9 +27,21 @@ public:
 	virtual int GetLeftWidth() const override { return m_nLeftWidth; }
 	virtual void SetLeftWidth(int nWidth) override { m_nLeftWidth = nWidth; }
 
+	// IObserver 接口实现
+	virtual void OnDataChanged(const CString& strEventType, void* pData = nullptr) override;
+
 	// 获取控件指针（供外部使用）
 	CListCtrl* GetCategoryList() { return &m_listLogCategory; }
 	CListCtrl* GetLibraryList() { return &m_listLogLibrary; }
+
+	// 设置 WorkLogManager 指针（用于观察者模式）
+	void SetWorkLogManager(CWorkLogManager* pManager) { m_pWorkLogManager = pManager; }
+
+	// 刷新分类列表
+	void RefreshCategoryList();
+
+	// 刷新日志库列表（根据当前选中的分类）
+	void RefreshLibraryList();
 
 private:
 	// 控件
@@ -34,6 +50,7 @@ private:
 	CStatic m_logSplitter;       // 分割条
 
 	CWnd* m_pParent;             // 父窗口
+	CWorkLogManager* m_pWorkLogManager; // 工作日志管理器指针（用于观察者模式）
 	int m_nLeftWidth;            // 左侧列表宽度
 
 	// 分割条拖拽相关

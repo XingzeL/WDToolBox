@@ -1,4 +1,4 @@
-ï»¿// CWriteWorkLogDlg.cpp: å®ç°æ–‡ä»¶
+// CWriteWorkLogDlg.cpp: ÊµÏÖÎÄ¼ş
 //
 
 #include "pch.h"
@@ -7,7 +7,7 @@
 #include "WriteWorkLogDlg.h"
 
 
-// CWriteWorkLogDlg å¯¹è¯æ¡†
+// CWriteWorkLogDlg ¶Ô»°¿ò
 
 IMPLEMENT_DYNAMIC(CWriteWorkLogDlg, CDialogEx)
 
@@ -54,60 +54,60 @@ BEGIN_MESSAGE_MAP(CWriteWorkLogDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CWriteWorkLogDlg æ¶ˆæ¯å¤„ç†ç¨‹åº
+// CWriteWorkLogDlg ÏûÏ¢´¦Àí³ÌĞò
 
 BOOL CWriteWorkLogDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// è®¾ç½®ä»»åŠ¡ç±»å‹å’Œä¿®æ”¹åº“åï¼ˆåªè¯»ï¼‰
+	// ÉèÖÃÈÎÎñÀàĞÍºÍĞŞ¸Ä¿âÃû£¨Ö»¶Á£©
 	m_editTaskType.SetWindowText(m_strProjectInfo);
 	m_editTaskType.SetReadOnly(TRUE);
 	m_editLibName.SetWindowText(m_strLibraryInfo);
 	m_editLibName.SetReadOnly(TRUE);
 
-	// åˆå§‹åŒ–ä»»åŠ¡æ€§è´¨ä¸‹æ‹‰æ¡†
-	m_comboTaskNature.AddString(_T("å¼€å‘"));
-	m_comboTaskNature.AddString(_T("æµ‹è¯•"));
-	m_comboTaskNature.AddString(_T("ä¿®å¤"));
-	m_comboTaskNature.AddString(_T("ä¼˜åŒ–"));
-	m_comboTaskNature.AddString(_T("æ–‡æ¡£"));
-	m_comboTaskNature.AddString(_T("å…¶ä»–"));
-	m_comboTaskNature.SetCurSel(0); // é»˜è®¤é€‰æ‹©ç¬¬ä¸€é¡¹
+	// ³õÊ¼»¯ÈÎÎñĞÔÖÊÏÂÀ­¿ò
+	m_comboTaskNature.AddString(_T("¿ª·¢"));
+	m_comboTaskNature.AddString(_T("²âÊÔ"));
+	m_comboTaskNature.AddString(_T("ĞŞ¸´"));
+	m_comboTaskNature.AddString(_T("ÓÅ»¯"));
+	m_comboTaskNature.AddString(_T("ÎÄµµ"));
+	m_comboTaskNature.AddString(_T("ÆäËû"));
+	m_comboTaskNature.SetCurSel(0); // Ä¬ÈÏÑ¡ÔñµÚÒ»Ïî
 
-	// åˆå§‹åŒ–ç”¨æ—¶ä¸‹æ‹‰æ¡†ï¼ˆ0.5~8å°æ—¶ï¼Œ0.5å°æ—¶ä¸ºå•ä½ï¼‰
+	// ³õÊ¼»¯ÓÃÊ±ÏÂÀ­¿ò£¨0.5~8Ğ¡Ê±£¬0.5Ğ¡Ê±Îªµ¥Î»£©
 	for (double dHour = 0.5; dHour <= 8.0; dHour += 0.5)
 	{
 		CString strTime;
 		if (dHour == (int)dHour)
 		{
-			strTime.Format(_T("%.0få°æ—¶"), dHour);
+			strTime.Format(_T("%.0fĞ¡Ê±"), dHour);
 		}
 		else
 		{
-			strTime.Format(_T("%.1få°æ—¶"), dHour);
+			strTime.Format(_T("%.1fĞ¡Ê±"), dHour);
 		}
 		m_comboTimeUsed.AddString(strTime);
 	}
-	m_comboTimeUsed.SetCurSel(0); // é»˜è®¤é€‰æ‹©ç¬¬ä¸€é¡¹ï¼ˆ0.5å°æ—¶ï¼‰
+	m_comboTimeUsed.SetCurSel(0); // Ä¬ÈÏÑ¡ÔñµÚÒ»Ïî£¨0.5Ğ¡Ê±£©
 
-	return TRUE;  // è¿”å› TRUE é™¤éå°†ç„¦ç‚¹è®¾ç½®åˆ°æ§ä»¶
+	return TRUE;  // ·µ»Ø TRUE ³ı·Ç½«½¹µãÉèÖÃµ½¿Ø¼ş
 }
 
 void CWriteWorkLogDlg::OnOK()
 {
-	// è·å–å½“å‰æ—¥æœŸæ—¶é—´
+	// »ñÈ¡µ±Ç°ÈÕÆÚÊ±¼ä
 	CTime time = CTime::GetCurrentTime();
 	CString strDate;
 	strDate.Format(_T("%04d/%02d/%02d"), time.GetYear(), time.GetMonth(), time.GetDay());
 
-	// è·å–ä»»åŠ¡ç±»å‹ï¼ˆå·²è®¾ç½®ï¼Œåªè¯»ï¼‰
+	// »ñÈ¡ÈÎÎñÀàĞÍ£¨ÒÑÉèÖÃ£¬Ö»¶Á£©
 	CString strTaskType = m_strProjectInfo;
 
-	// è·å–ä¿®æ”¹åº“åï¼ˆå·²è®¾ç½®ï¼Œåªè¯»ï¼‰
+	// »ñÈ¡ĞŞ¸Ä¿âÃû£¨ÒÑÉèÖÃ£¬Ö»¶Á£©
 	CString strLibName = m_strLibraryInfo;
 
-	// è·å–ä»»åŠ¡æ€§è´¨
+	// »ñÈ¡ÈÎÎñĞÔÖÊ
 	CString strTaskNature;
 	int nSel = m_comboTaskNature.GetCurSel();
 	if (nSel >= 0)
@@ -115,7 +115,7 @@ void CWriteWorkLogDlg::OnOK()
 		m_comboTaskNature.GetLBText(nSel, strTaskNature);
 	}
 
-	// è·å–ç”¨æ—¶
+	// »ñÈ¡ÓÃÊ±
 	CString strTimeUsed;
 	nSel = m_comboTimeUsed.GetCurSel();
 	if (nSel >= 0)
@@ -123,12 +123,12 @@ void CWriteWorkLogDlg::OnOK()
 		m_comboTimeUsed.GetLBText(nSel, strTimeUsed);
 	}
 
-	// è·å–å·¥ä½œæè¿°
+	// »ñÈ¡¹¤×÷ÃèÊö
 	CString strWorkDesc;
 	m_editWorkDesc.GetWindowText(strWorkDesc);
 
-	// ç»„åˆæˆæ ¼å¼åŒ–æ—¥å¿—æ¡ç›®ï¼š[å¹´æœˆæ—¥][ä»»åŠ¡ç±»å‹][ä¿®æ”¹åº“å][ä»»åŠ¡æ€§è´¨][ç”¨æ—¶][å·¥ä½œæè¿°]
-	m_strLogContent.Format(_T("[%s][%s][%s][%s][%s][%s]"), 
+	// ×éºÏ³É¸ñÊ½»¯ÈÕÖ¾ÌõÄ¿£º[ÄêÔÂÈÕ][ÈÎÎñÀàĞÍ][ĞŞ¸Ä¿âÃû][ÈÎÎñĞÔÖÊ][ÓÃÊ±][¹¤×÷ÃèÊö]
+	m_strLogContent.Format(_T("[%s][%s][%s][%s][%s][%s]"),
 		strDate, strTaskType, strLibName, strTaskNature, strTimeUsed, strWorkDesc);
 
 	CDialogEx::OnOK();
@@ -136,7 +136,7 @@ void CWriteWorkLogDlg::OnOK()
 
 void CWriteWorkLogDlg::OnCancel()
 {
-	// å–æ¶ˆæ—¶æ¸…ç©ºæ—¥å¿—å†…å®¹
+	// È¡ÏûÊ±Çå¿ÕÈÕÖ¾ÄÚÈİ
 	m_strLogContent.Empty();
 	CDialogEx::OnCancel();
 }

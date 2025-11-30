@@ -56,6 +56,8 @@ END_MESSAGE_MAP()
 
 CWDToolBoxDlg::CWDToolBoxDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_WDTOOLBOX_DIALOG, pParent)
+    , m_toolManager(&m_toolConfigReader, nullptr)  // 注入 ConfigReader，Executor 使用默认值
+    , m_workLogger(&m_logConfigReader, nullptr)    // 注入 ConfigReader，Executor 使用默认值
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
     m_nCategoryListWidth = 200;  // 默认左侧列表宽度
@@ -153,7 +155,15 @@ BOOL CWDToolBoxDlg::OnInitDialog()
     m_toolManagerPage.SetLeftWidth(m_nCategoryListWidth);
     m_workLogPage.SetLeftWidth(m_nCategoryListWidth);
 
-    // 加载工具分类
+    // 设置 Manager 指针（用于观察者模式）
+    m_toolManagerPage.SetToolManager(&m_toolManager);
+    m_workLogPage.SetWorkLogManager(&m_workLogger);
+
+    // 注册观察者
+    m_toolManager.AddObserver(&m_toolManagerPage);
+    m_workLogger.AddObserver(&m_workLogPage);
+
+    // 加载工具分类（观察者会自动更新UI）
     LoadToolCategories();
 
     return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -244,27 +254,11 @@ void CWDToolBoxDlg::LoadToolCategories()
         pToolList->SetImageList(&m_imageList, LVSIL_NORMAL);
     }
 
-    // 填充分类列表
-    std::vector<CString> categories;
-    m_toolManager.GetAllCategories(categories);
-
-    CListCtrl* pCategoryList = m_toolManagerPage.GetCategoryList();
-    if (pCategoryList)
-    {
-        pCategoryList->DeleteAllItems();
-        for (size_t i = 0; i < categories.size(); i++)
-        {
-            int nIndex = pCategoryList->InsertItem((int)i, categories[i]);
-            pCategoryList->SetItemData(nIndex, i);
-        }
-
-        // 默认选择第一项
-        if (pCategoryList->GetItemCount() > 0)
-        {
-            pCategoryList->SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
-            UpdateToolList(categories[0]);
-        }
-    }
+    // 注意：分类列表和工具列表的填充现在由观察者模式自动处理
+    // 但首次加载时，我们需要手动触发一次刷新（因为观察者可能还未注册）
+    // 实际上，LoadFromConfig 会触发 ConfigLoaded 事件，观察者会自动更新
+    // 这里保留手动更新作为后备
+    m_toolManagerPage.RefreshCategoryList();
 }
 
 // 更新工具列表
@@ -273,7 +267,7 @@ void CWDToolBoxDlg::UpdateToolList(const CString& strCategory)
     CListCtrl* pToolList = m_toolManagerPage.GetToolList();
     if (!pToolList)
         return;
-    
+
     pToolList->DeleteAllItems();
 
     std::vector<ToolInfo>& tools = m_toolManager.GetToolsByCategory(strCategory);
@@ -296,7 +290,7 @@ void CWDToolBoxDlg::UpdateToolList(const CString& strCategory)
 void CWDToolBoxDlg::OnLvnItemchangedCategoryList(NMHDR* pNMHDR, LRESULT* pResult)
 {
     LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
-    
+
     if (pNMLV->uChanged & LVIF_STATE && pNMLV->uNewState & LVIS_SELECTED)
     {
         CListCtrl* pCategoryList = m_toolManagerPage.GetCategoryList();
@@ -314,7 +308,7 @@ void CWDToolBoxDlg::OnLvnItemchangedCategoryList(NMHDR* pNMHDR, LRESULT* pResult
 void CWDToolBoxDlg::OnNMDblclkToolList(NMHDR* pNMHDR, LRESULT* pResult)
 {
     LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
-    
+
     if (pNMItemActivate->iItem >= 0)
     {
         CListCtrl* pToolList = m_toolManagerPage.GetToolList();
@@ -323,7 +317,7 @@ void CWDToolBoxDlg::OnNMDblclkToolList(NMHDR* pNMHDR, LRESULT* pResult)
             ToolInfo* pTool = (ToolInfo*)pToolList->GetItemData(pNMItemActivate->iItem);
             if (pTool != NULL)
             {
-                m_launcher.Execute(pTool->strPath); // 进程启动器启动工具
+                m_toolManager.ExecuteTool(*pTool); // 委托给 Manager 执行工具
             }
         }
     }
@@ -413,7 +407,7 @@ void CWDToolBoxDlg::OnMouseMove(UINT nFlags, CPoint point)
         OnSize(0, clientRect.Width(), clientRect.Height());
         return;
     }
-    
+
     CDialogEx::OnMouseMove(nFlags, point);
 }
 
@@ -497,15 +491,6 @@ void CWDToolBoxDlg::ShowTabPage(int nPage)
 // 加载日志分类
 void CWDToolBoxDlg::LoadLogCategories()
 {
-    // 先清空现有数据，避免重复添加
-    m_workLogger.Clear();
-    
-    CListCtrl* pCategoryList = m_workLogPage.GetCategoryList();
-    CListCtrl* pLibraryList = m_workLogPage.GetLibraryList();
-    
-    if (pCategoryList) pCategoryList->DeleteAllItems();
-    if (pLibraryList) pLibraryList->DeleteAllItems();
-
     // 从配置文件加载日志库，如果失败则使用默认配置
     if (!m_workLogger.LoadFromConfig(_T("")))
     {
@@ -514,24 +499,10 @@ void CWDToolBoxDlg::LoadLogCategories()
         m_workLogger.LoadDefaultLibraries();
     }
 
-    // 填充分类列表
-    if (pCategoryList)
-    {
-        std::vector<CString> categories;
-        m_workLogger.GetAllCategories(categories);
-        for (size_t i = 0; i < categories.size(); i++)
-        {
-            int nIndex = pCategoryList->InsertItem((int)i, categories[i]);
-            pCategoryList->SetItemData(nIndex, i);
-        }
-
-        // 默认选择第一项
-        if (pCategoryList->GetItemCount() > 0)
-        {
-            pCategoryList->SetItemState(0, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
-            UpdateLogLibraryList(categories[0]);
-        }
-    }
+    // 注意：分类列表和库列表的填充现在由观察者模式自动处理
+    // LoadFromConfig 会触发 ConfigLoaded 事件，观察者会自动更新
+    // 这里保留手动更新作为后备
+    m_workLogPage.RefreshCategoryList();
 }
 
 // 更新日志库列表
@@ -540,7 +511,7 @@ void CWDToolBoxDlg::UpdateLogLibraryList(const CString& strCategory)
     CListCtrl* pLibraryList = m_workLogPage.GetLibraryList();
     if (!pLibraryList)
         return;
-    
+
     pLibraryList->DeleteAllItems();
 
     std::vector<LogLibraryInfo>& libraries = m_workLogger.GetLibrariesByCategory(strCategory);
@@ -577,7 +548,7 @@ void CWDToolBoxDlg::OnNMDblclkLogLibraryList(NMHDR* pNMHDR, LRESULT* pResult)
     {
         CListCtrl* pCategoryList = m_workLogPage.GetCategoryList();
         CListCtrl* pLibraryList = m_workLogPage.GetLibraryList();
-        
+
         if (pCategoryList && pLibraryList)
         {
             CString strLibraryInfo = pLibraryList->GetItemText(pNMItemActivate->iItem, 0);
@@ -592,7 +563,7 @@ void CWDToolBoxDlg::OnNMDblclkLogLibraryList(NMHDR* pNMHDR, LRESULT* pResult)
                 // 只有当日志内容不为空时才写入
                 if (!strLogContent.IsEmpty())
                 {
-                    m_workLogWriter.Execute(strLogContent);
+                    m_workLogger.WriteLog(strLogContent); // 委托给 Manager 写入日志
                 }
             }
         }

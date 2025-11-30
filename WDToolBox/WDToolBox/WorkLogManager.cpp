@@ -4,197 +4,155 @@
 #include "pch.h"
 #include "WorkLogManager.h"
 #include "WorkLogWriter.h"
-#include <shlwapi.h>
-#include <windows.h>
+#include "Executor.h"
+#include <windows.h>  // GetModuleFileName 需要
 
-#pragma comment(lib, "shlwapi.lib")
-
-CWorkLogManager::CWorkLogManager()
+CWorkLogManager::CWorkLogManager(IConfigReader* pConfigReader, CExecutor* pExecutor)
+	: m_pConfigReader(pConfigReader)
+	, m_bOwnConfigReader(false)
+	, m_pExecutor(pExecutor)
+	, m_bOwnExecutor(false)
 {
+	// 如果没有提供 ConfigReader，创建一个默认的
+	if (m_pConfigReader == nullptr)
+	{
+		m_pConfigReader = new CIniConfigReader();
+		m_bOwnConfigReader = true;
+	}
+
+	// 如果没有提供 Executor，创建一个默认的 WorkLogWriter
+	if (m_pExecutor == nullptr)
+	{
+		m_pExecutor = new CWorkLogWriter();
+		m_bOwnExecutor = true;
+	}
 }
 
 CWorkLogManager::~CWorkLogManager()
 {
 	Clear();
+
+	// 如果拥有 ConfigReader 的所有权，释放它
+	if (m_bOwnConfigReader && m_pConfigReader != nullptr)
+	{
+		delete m_pConfigReader;
+		m_pConfigReader = nullptr;
+	}
+
+	// 如果拥有 Executor 的所有权，释放它
+	if (m_bOwnExecutor && m_pExecutor != nullptr)
+	{
+		delete m_pExecutor;
+		m_pExecutor = nullptr;
+	}
+}
+
+CString CWorkLogManager::GetDefaultConfigPath()
+{
+	CString strIniPath;
+	TCHAR szModulePath[MAX_PATH];
+	GetModuleFileName(NULL, szModulePath, MAX_PATH);
+	CString strModulePath = szModulePath;
+	int nPos = strModulePath.ReverseFind(_T('\\'));
+	if (nPos >= 0)
+	{
+		strIniPath = strModulePath.Left(nPos + 1) + _T("worklogs.ini");
+	}
+	else
+	{
+		strIniPath = _T("worklogs.ini");
+	}
+	return strIniPath;
 }
 
 bool CWorkLogManager::LoadFromConfig(const CString& strConfigPath)
 {
+	// 清空现有数据
+	Clear();
+
 	// 获取配置文件路径（如果未指定，使用程序目录下的 worklogs.ini）
 	CString strIniPath = strConfigPath;
 	if (strIniPath.IsEmpty())
 	{
-		TCHAR szModulePath[MAX_PATH];
-		GetModuleFileName(NULL, szModulePath, MAX_PATH);
-		CString strModulePath = szModulePath;
-		int nPos = strModulePath.ReverseFind(_T('\\'));
-		if (nPos >= 0)
-		{
-			strIniPath = strModulePath.Left(nPos + 1) + _T("worklogs.ini");
-		}
-		else
-		{
-			strIniPath = _T("worklogs.ini");
-		}
+		strIniPath = GetDefaultConfigPath();
 	}
 
-	// 检查配置文件是否存在
-	if (!PathFileExists(strIniPath))
-	{
-		// 如果配置文件不存在，返回false
-		return false;
-	}
-
-	// 读取UTF-8编码的文件内容
-	HANDLE hFile = CreateFile(strIniPath, GENERIC_READ, FILE_SHARE_READ, NULL,
-		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
+	// 使用 ConfigReader 加载配置
+	if (m_pConfigReader == nullptr)
 	{
 		return false;
 	}
 
-	// 获取文件大小
-	DWORD dwFileSize = GetFileSize(hFile, NULL);
-	if (dwFileSize == 0 || dwFileSize > 1024 * 1024) // 限制最大1MB
+	if (!m_pConfigReader->LoadFromFile(strIniPath))
 	{
-		CloseHandle(hFile);
 		return false;
 	}
 
-	// 读取文件内容
-	char* pBuffer = new char[dwFileSize + 1];
-	DWORD dwBytesRead = 0;
-	if (!ReadFile(hFile, pBuffer, dwFileSize, &dwBytesRead, NULL))
+	// 获取所有节（分类）
+	std::vector<CString> vecSections;
+	if (!m_pConfigReader->GetSections(vecSections))
 	{
-		delete[] pBuffer;
-		CloseHandle(hFile);
-		return false;
-	}
-	pBuffer[dwBytesRead] = 0;
-	CloseHandle(hFile);
-
-	// 检测并跳过BOM（UTF-8 BOM: EF BB BF）
-	int nStartPos = 0;
-	if (dwBytesRead >= 3 && (unsigned char)pBuffer[0] == 0xEF &&
-		(unsigned char)pBuffer[1] == 0xBB && (unsigned char)pBuffer[2] == 0xBF)
-	{
-		nStartPos = 3;
-	}
-
-	// 将UTF-8转换为宽字符（Unicode）
-	int nWideLen = MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos,
-		dwBytesRead - nStartPos, NULL, 0);
-	if (nWideLen <= 0)
-	{
-		delete[] pBuffer;
 		return false;
 	}
 
-	wchar_t* pWideBuffer = new wchar_t[nWideLen + 1];
-	MultiByteToWideChar(CP_UTF8, 0, pBuffer + nStartPos, dwBytesRead - nStartPos,
-		pWideBuffer, nWideLen);
-	pWideBuffer[nWideLen] = 0;
-	delete[] pBuffer;
-
-	CString strContent;
-
-	// 解析INI文件内容
-#ifdef _UNICODE
-	strContent = pWideBuffer;
-#else
-	// 多字节模式：将Unicode转换为多字节
-	int nMultiByteLen = WideCharToMultiByte(CP_ACP, 0, pWideBuffer, nWideLen, NULL, 0, NULL, NULL);
-	if (nMultiByteLen > 0)
+	// 遍历每个分类，加载日志库
+	for (const CString& strCategory : vecSections)
 	{
-		char* pMultiByteBuffer = new char[nMultiByteLen + 1];
-		WideCharToMultiByte(CP_ACP, 0, pWideBuffer, nWideLen, pMultiByteBuffer, nMultiByteLen, NULL, NULL);
-		pMultiByteBuffer[nMultiByteLen] = 0;
-		strContent = pMultiByteBuffer;
-		delete[] pMultiByteBuffer;
-	}
-	else
-	{
-		strContent = _T("");
-	}
-#endif
-	delete[] pWideBuffer;
-
-	CString strCurrentCategory;
-	int nPos = 0;
-	CString strLine;
-
-	// 逐行解析
-	while (nPos < strContent.GetLength())
-	{
-		int nLineEnd = strContent.Find(_T('\n'), nPos);
-		if (nLineEnd == -1)
+		// 获取该分类下的所有键（库名称）
+		std::vector<CString> vecKeys;
+		if (m_pConfigReader->GetKeys(strCategory, vecKeys))
 		{
-			strLine = strContent.Mid(nPos);
-			nPos = strContent.GetLength();
-		}
-		else
-		{
-			strLine = strContent.Mid(nPos, nLineEnd - nPos);
-			nPos = nLineEnd + 1;
-		}
-
-		// 去除回车符和前后空格
-		strLine.Trim();
-		if (strLine.IsEmpty())
-			continue;
-
-		// 检查是否是分类行 [分类名]
-		if (strLine.GetLength() > 2 && strLine[0] == _T('[') &&
-			strLine[strLine.GetLength() - 1] == _T(']'))
-		{
-			strCurrentCategory = strLine.Mid(1, strLine.GetLength() - 2);
-			strCurrentCategory.Trim();
-		}
-		// 检查是否是库条目
-		else if (!strCurrentCategory.IsEmpty())
-		{
-			if (!strLine.IsEmpty())
+			// 遍历每个库
+			for (const CString& strKey : vecKeys)
 			{
-				LogLibraryInfo library;
-				library.strName = strLine;
-				library.strCategory = strCurrentCategory;
-
-				// 如果是新分类，记录到顺序列表中
-				if (m_mapLibraries.find(strCurrentCategory) == m_mapLibraries.end())
+				// 获取库名（值）
+				CString strLibraryName = m_pConfigReader->GetValue(strCategory, strKey);
+				// 如果值为空，使用键作为库名（兼容性处理）
+				if (strLibraryName.IsEmpty())
 				{
-					m_vecCategoryOrder.push_back(strCurrentCategory);
+					strLibraryName = strKey;
 				}
 
-				m_mapLibraries[strCurrentCategory].push_back(library);
+				if (!strLibraryName.IsEmpty())
+				{
+					// 添加日志库（批量加载时不通知，最后统一通知）
+					AddLibrary(strCategory, strLibraryName, false);
+				}
 			}
 		}
 	}
+
+	// 通知观察者：配置已加载
+	NotifyObservers(_T("ConfigLoaded"), nullptr);
 
 	return true;
 }
 
 void CWorkLogManager::LoadDefaultLibraries()
 {
-	// 默认配置（作为后备）
-	AddLibrary(_T("UI服务"), _T("库1"));
-	AddLibrary(_T("UI服务"), _T("库2"));
-	AddLibrary(_T("UI服务"), _T("库3"));
+	// 默认配置（作为后备，批量加载时不通知，最后统一通知）
+	AddLibrary(_T("UI服务"), _T("库1"), false);
+	AddLibrary(_T("UI服务"), _T("库2"), false);
+	AddLibrary(_T("UI服务"), _T("库3"), false);
 
-	AddLibrary(_T("用户工具"), _T("库1"));
-	AddLibrary(_T("用户工具"), _T("库2"));
-	AddLibrary(_T("用户工具"), _T("库3"));
+	AddLibrary(_T("用户工具"), _T("库1"), false);
+	AddLibrary(_T("用户工具"), _T("库2"), false);
+	AddLibrary(_T("用户工具"), _T("库3"), false);
 
-	AddLibrary(_T("CSP库"), _T("库1"));
-	AddLibrary(_T("CSP库"), _T("库2"));
-	AddLibrary(_T("CSP库"), _T("库3"));
+	AddLibrary(_T("CSP库"), _T("库1"), false);
+	AddLibrary(_T("CSP库"), _T("库2"), false);
+	AddLibrary(_T("CSP库"), _T("库3"), false);
 
-	AddLibrary(_T("维护"), _T("库1"));
-	AddLibrary(_T("维护"), _T("库2"));
-	AddLibrary(_T("维护"), _T("库3"));
+	AddLibrary(_T("维护"), _T("库1"), false);
+	AddLibrary(_T("维护"), _T("库2"), false);
+	AddLibrary(_T("维护"), _T("库3"), false);
 
-	AddLibrary(_T("文档工具"), _T("库1"));
-	AddLibrary(_T("文档工具"), _T("库2"));
-	AddLibrary(_T("文档工具"), _T("库3"));
+	AddLibrary(_T("文档工具"), _T("库1"), false);
+	AddLibrary(_T("文档工具"), _T("库2"), false);
+	AddLibrary(_T("文档工具"), _T("库3"), false);
+
+	// 批量加载完成后，统一通知一次
+	NotifyObservers(_T("ConfigLoaded"), nullptr);
 }
 
 std::vector<LogLibraryInfo>& CWorkLogManager::GetLibrariesByCategory(const CString& strCategory)
@@ -220,20 +178,45 @@ void CWorkLogManager::Clear()
 {
 	m_mapLibraries.clear();
 	m_vecCategoryOrder.clear();
+
+	// 通知观察者：数据已清空
+	NotifyObservers(_T("DataCleared"), nullptr);
+}
+
+// 写入日志（委托给 Executor）
+BOOL CWorkLogManager::WriteLog(const CString& strContent)
+{
+	if (m_pExecutor == nullptr)
+		return FALSE;
+	return m_pExecutor->Execute(strContent);
 }
 
 // 辅助函数：添加日志库
-void CWorkLogManager::AddLibrary(const CString& strCategory, const CString& strName)
+void CWorkLogManager::AddLibrary(const CString& strCategory, const CString& strName, bool bNotify)
 {
 	LogLibraryInfo library;
 	library.strName = strName;
 	library.strCategory = strCategory;
 
 	// 如果是新分类，记录到顺序列表中
-	if (m_mapLibraries.find(strCategory) == m_mapLibraries.end())
+	bool bNewCategory = (m_mapLibraries.find(strCategory) == m_mapLibraries.end());
+	if (bNewCategory)
 	{
 		m_vecCategoryOrder.push_back(strCategory);
 	}
 
 	m_mapLibraries[strCategory].push_back(library);
+
+	// 只有在需要通知时才通知观察者（批量加载时设为 false，避免频繁通知）
+	if (bNotify)
+	{
+		// 通知观察者：库已添加
+		NotifyObservers(_T("LibraryAdded"), &library);
+
+		// 如果是新分类，通知分类变化
+		if (bNewCategory)
+		{
+			NotifyObservers(_T("CategoryAdded"), (void*)(LPCTSTR)strCategory);
+		}
+	}
 }

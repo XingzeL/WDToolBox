@@ -1,43 +1,62 @@
-// WorkLogManager.h: å·¥ä½œæ—¥å¿—ç®¡ç†å™¨
+// WorkLogManager.h: ¹¤×÷ÈÕÖ¾¹ÜÀíÆ÷
 //
 
 #pragma once
 
 #include <vector>
 #include <map>
+#include "ConfigReader.h"
+#include "Observer.h"
 
-// æ—¥å¿—åº“ä¿¡æ¯ç»“æ„
+// Ç°ÏòÉùÃ÷
+class CExecutor;
+
+// ÈÕÖ¾¿âĞÅÏ¢½á¹¹
 struct LogLibraryInfo
 {
-	CString strName;      // åº“åç§°
-	CString strCategory;  // åº“åˆ†ç±»
+	CString strName;      // ¿âÃû³Æ
+	CString strCategory;  // ¿â·ÖÀà
 };
 
-// æ—¥å¿—åº“ç®¡ç†ç±»
-class CWorkLogManager
+// ÈÕÖ¾¿â¹ÜÀíÀà£¨Ö§³Ö¹Û²ìÕßÄ£Ê½£©
+class CWorkLogManager : public CObservable
 {
 public:
-	CWorkLogManager();
+	CWorkLogManager(IConfigReader* pConfigReader = nullptr, CExecutor* pExecutor = nullptr);
 	~CWorkLogManager();
 
-	// ä»é…ç½®æ–‡ä»¶åŠ è½½æ—¥å¿—åº“
+	// ´ÓÅäÖÃÎÄ¼ş¼ÓÔØÈÕÖ¾¿â
 	bool LoadFromConfig(const CString& strConfigPath = _T(""));
 
-	// åŠ è½½é»˜è®¤æ—¥å¿—åº“é…ç½®
+	// ¼ÓÔØÄ¬ÈÏÈÕÖ¾¿âÅäÖÃ
 	void LoadDefaultLibraries();
 
-	// è·å–æŒ‡å®šåˆ†ç±»çš„æ‰€æœ‰æ—¥å¿—åº“
+	// »ñÈ¡Ö¸¶¨·ÖÀàµÄËùÓĞÈÕÖ¾¿â
 	std::vector<LogLibraryInfo>& GetLibrariesByCategory(const CString& strCategory);
 
-	// è·å–æ‰€æœ‰åˆ†ç±»åç§°
+	// »ñÈ¡ËùÓĞ·ÖÀàÃû³Æ
 	void GetAllCategories(std::vector<CString>& categories);
 
-	// æ¸…ç†èµ„æº
+	// Ğ´ÈëÈÕÖ¾£¨Î¯ÍĞ¸ø Executor£©
+	BOOL WriteLog(const CString& strContent);
+
+	// ÇåÀí×ÊÔ´
 	void Clear();
 
-	void AddLibrary(const CString& strCategory, const CString& strName);
+	// Ìí¼ÓÈÕÖ¾¿â
+	// bNotify: ÊÇ·ñÁ¢¼´Í¨Öª¹Û²ìÕß£¨ÅúÁ¿¼ÓÔØÊ±ÉèÎª false£¬×îºóÍ³Ò»Í¨Öª£©
+	void AddLibrary(const CString& strCategory, const CString& strName, bool bNotify = true);
 
 private:
-	std::map<CString, std::vector<LogLibraryInfo>> m_mapLibraries;  // åˆ†ç±» -> æ—¥å¿—åº“åˆ—è¡¨
-	std::vector<CString> m_vecCategoryOrder;      // åˆ†ç±»é¡ºåºï¼ˆä¿æŒæ’å…¥é¡ºåºï¼‰
+	IConfigReader* m_pConfigReader;  // ÅäÖÃ¶ÁÈ¡Æ÷£¨ÒÀÀµ×¢Èë£©
+	bool m_bOwnConfigReader;         // ÊÇ·ñÓµÓĞ ConfigReader µÄËùÓĞÈ¨
+
+	CExecutor* m_pExecutor;          // ÈÕÖ¾Ğ´ÈëÆ÷£¨ÒÀÀµ×¢Èë£©
+	bool m_bOwnExecutor;             // ÊÇ·ñÓµÓĞ Executor µÄËùÓĞÈ¨
+
+	std::map<CString, std::vector<LogLibraryInfo>> m_mapLibraries;  // ·ÖÀà -> ÈÕÖ¾¿âÁĞ±í
+	std::vector<CString> m_vecCategoryOrder;      // ·ÖÀàË³Ğò£¨±£³Ö²åÈëË³Ğò£©
+
+	// »ñÈ¡Ä¬ÈÏÅäÖÃÎÄ¼şÂ·¾¶
+	CString GetDefaultConfigPath();
 };

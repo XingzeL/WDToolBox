@@ -1,0 +1,26 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# 所有文件
+[*]
+charset = gb2312
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# C/C++ 源文件
+[*.{c,cpp,h,hpp}]
+charset = gb2312
+indent_style = tab
+indent_size = 4
+
+# 配置文件
+[*.{ini,json,xml}]
+charset = utf-8
+
+# 项目文件
+[*.{vcxproj,vcxproj.filters,sln}]
+charset = utf-8
+
