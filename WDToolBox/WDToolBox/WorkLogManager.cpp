@@ -47,7 +47,7 @@ CWorkLogManager::~CWorkLogManager()
 	}
 }
 
-CString CWorkLogManager::GetDefaultConfigPath()
+CString CWorkLogManager::GetDefaultConfigPath() const
 {
 	CString strIniPath;
 	TCHAR szModulePath[MAX_PATH];
@@ -76,6 +76,9 @@ bool CWorkLogManager::LoadFromConfig(const CString& strConfigPath)
 	{
 		strIniPath = GetDefaultConfigPath();
 	}
+
+	// 保存当前配置文件路径
+	m_strConfigPath = strIniPath;
 
 	// 使用 ConfigReader 加载配置
 	if (m_pConfigReader == nullptr)

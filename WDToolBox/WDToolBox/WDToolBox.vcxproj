@@ -283,6 +283,7 @@
     <ClInclude Include="WorkLogPage.h" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="ConfigReader.h" />
+    <ClInclude Include="ConfigFileWatcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WriteWorkLogDlg.cpp" />
@@ -305,6 +306,7 @@
     <ClCompile Include="WorkLogPage.cpp" />
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="ConfigReader.cpp" />
+    <ClCompile Include="ConfigFileWatcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WDToolBox.rc" />

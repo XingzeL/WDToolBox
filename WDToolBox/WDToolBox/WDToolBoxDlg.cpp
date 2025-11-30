@@ -58,9 +58,24 @@ CWDToolBoxDlg::CWDToolBoxDlg(CWnd* pParent /*=nullptr*/)
     : CDialogEx(IDD_WDTOOLBOX_DIALOG, pParent)
     , m_toolManager(&m_toolConfigReader, nullptr)  // 注入 ConfigReader，Executor 使用默认值
     , m_workLogger(&m_logConfigReader, nullptr)    // 注入 ConfigReader，Executor 使用默认值
+    , m_nToolConfigTimerId(0)
+    , m_nLogConfigTimerId(0)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
     m_nCategoryListWidth = 200;  // 默认左侧列表宽度
+}
+
+CWDToolBoxDlg::~CWDToolBoxDlg()
+{
+    // 停止配置文件监控
+    if (m_nToolConfigTimerId != 0)
+    {
+        m_configWatcher.StopWatch(m_hWnd, m_nToolConfigTimerId);
+    }
+    if (m_nLogConfigTimerId != 0)
+    {
+        m_configWatcher.StopWatch(m_hWnd, m_nLogConfigTimerId);
+    }
 }
 
 void CWDToolBoxDlg::DoDataExchange(CDataExchange* pDX)
@@ -81,6 +96,7 @@ BEGIN_MESSAGE_MAP(CWDToolBoxDlg, CDialogEx)
     ON_WM_LBUTTONUP()
     ON_WM_CAPTURECHANGED()
     ON_WM_SETCURSOR()
+    ON_WM_TIMER()
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_CATEGORY_LIST, &CWDToolBoxDlg::OnLvnItemchangedCategoryList)
 	ON_NOTIFY(NM_DBLCLK, IDC_TOOL_LIST, &CWDToolBoxDlg::OnNMDblclkToolList)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LOG_CATEGORY_LIST, &CWDToolBoxDlg::OnLvnItemchangedLogCategoryList)
@@ -165,6 +181,9 @@ BOOL CWDToolBoxDlg::OnInitDialog()
 
     // 加载工具分类（观察者会自动更新UI）
     LoadToolCategories();
+
+    // 启动配置文件监控
+    StartConfigFileWatcher();
 
     return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -570,4 +589,40 @@ void CWDToolBoxDlg::OnNMDblclkLogLibraryList(NMHDR* pNMHDR, LRESULT* pResult)
     }
 
     *pResult = 0;
+}
+
+void CWDToolBoxDlg::StartConfigFileWatcher()
+{
+    // 获取工具配置文件路径
+    CString strToolConfigPath = m_toolManager.GetDefaultConfigPath();
+    if (!strToolConfigPath.IsEmpty() && PathFileExists(strToolConfigPath))
+    {
+        // 启动工具配置文件监控
+        m_nToolConfigTimerId = m_configWatcher.StartWatch(m_hWnd, strToolConfigPath,
+            [this](const CString& strFilePath) {
+                // 文件变化时重新加载配置
+                m_toolManager.LoadFromConfig(strFilePath);
+                // 观察者会自动更新UI
+            });
+    }
+
+    // 获取日志配置文件路径
+    CString strLogConfigPath = m_workLogger.GetDefaultConfigPath();
+    if (!strLogConfigPath.IsEmpty() && PathFileExists(strLogConfigPath))
+    {
+        // 启动日志配置文件监控
+        m_nLogConfigTimerId = m_configWatcher.StartWatch(m_hWnd, strLogConfigPath,
+            [this](const CString& strFilePath) {
+                // 文件变化时重新加载配置
+                m_workLogger.LoadFromConfig(strFilePath);
+                // 观察者会自动更新UI
+            });
+    }
+}
+
+void CWDToolBoxDlg::OnTimer(UINT_PTR nIDEvent)
+{
+    // 定时器事件由 ConfigFileWatcher 的 TimerProc 处理（使用系统定时器）
+    // 这里不需要额外处理
+    CDialogEx::OnTimer(nIDEvent);
 }

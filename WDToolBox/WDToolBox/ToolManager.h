@@ -60,6 +60,12 @@ public:
 	// 清理资源
 	void Clear();
 
+	// 获取默认配置文件路径（供外部使用，如文件监控）
+	CString GetDefaultConfigPath() const;
+
+	// 获取当前使用的配置文件路径（供外部使用）
+	CString GetConfigPath() const { return m_strConfigPath; }
+
 private:
 	IConfigReader* m_pConfigReader;  // 配置读取器（依赖注入）
 	bool m_bOwnConfigReader;         // 是否拥有 ConfigReader 的所有权
@@ -70,7 +76,7 @@ private:
 	std::map<CString, std::vector<ToolInfo>> m_mapTools;  // 分类 -> 工具列表
 	std::vector<CString> m_vecCategoryOrder;              // 分类顺序（保持插入顺序）
 
-	// 获取默认配置文件路径
-	CString GetDefaultConfigPath();
+private:
+	CString m_strConfigPath;  // 当前使用的配置文件路径
 };
 

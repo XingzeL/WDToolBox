@@ -47,6 +47,12 @@ public:
 	// bNotify: 是否立即通知观察者（批量加载时设为 false，最后统一通知）
 	void AddLibrary(const CString& strCategory, const CString& strName, bool bNotify = true);
 
+	// 获取默认配置文件路径（供外部使用，如文件监控）
+	CString GetDefaultConfigPath() const;
+
+	// 获取当前使用的配置文件路径（供外部使用）
+	CString GetConfigPath() const { return m_strConfigPath; }
+
 private:
 	IConfigReader* m_pConfigReader;  // 配置读取器（依赖注入）
 	bool m_bOwnConfigReader;         // 是否拥有 ConfigReader 的所有权
@@ -57,6 +63,6 @@ private:
 	std::map<CString, std::vector<LogLibraryInfo>> m_mapLibraries;  // 分类 -> 日志库列表
 	std::vector<CString> m_vecCategoryOrder;      // 分类顺序（保持插入顺序）
 
-	// 获取默认配置文件路径
-	CString GetDefaultConfigPath();
+private:
+	CString m_strConfigPath;  // 当前使用的配置文件路径
 };

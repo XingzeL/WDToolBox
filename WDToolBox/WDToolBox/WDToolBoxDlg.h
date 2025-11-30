@@ -9,6 +9,7 @@
 #include "ToolManagerPage.h"
 #include "WorkLogPage.h"
 #include "ConfigReader.h"
+#include "ConfigFileWatcher.h"
 
 // CWDToolBoxDlg 对话框
 class CWDToolBoxDlg : public CDialogEx
@@ -16,6 +17,7 @@ class CWDToolBoxDlg : public CDialogEx
 // 构造
 public:
 	CWDToolBoxDlg(CWnd* pParent = nullptr);	// 标准构造函数
+	virtual ~CWDToolBoxDlg();  // 析构函数
 
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
@@ -47,6 +49,11 @@ protected:
 	CToolManager m_toolManager;
 	CWorkLogManager m_workLogger;
 
+	// 配置文件监控器
+	CConfigFileWatcher m_configWatcher;
+	UINT_PTR m_nToolConfigTimerId;    // 工具配置监控定时器ID
+	UINT_PTR m_nLogConfigTimerId;      // 日志配置监控定时器ID
+
 	// 布局参数
 	int m_nCategoryListWidth;    // 左侧分类列表宽度（可调整）
 
@@ -67,6 +74,7 @@ protected:
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 
 	afx_msg void OnTcnSelchangeTabMain(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 
 	// 辅助函数
 	void InitializeControls();
@@ -75,6 +83,7 @@ protected:
 	void LoadLogCategories();
 	void UpdateLogLibraryList(const CString& strCategory);
 	void ShowTabPage(int nPage);
+	void StartConfigFileWatcher();  // 启动配置文件监控
 
 	DECLARE_MESSAGE_MAP()
 };
