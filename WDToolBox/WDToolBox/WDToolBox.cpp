@@ -6,6 +6,10 @@
 #include "framework.h"
 #include "WDToolBox.h"
 #include "WDToolBoxDlg.h"
+#include <windows.h>
+#include <psapi.h>
+
+#pragma comment(lib, "psapi.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -40,6 +44,77 @@ CWDToolBoxApp theApp;
 
 BOOL CWDToolBoxApp::InitInstance()
 {
+	// 检查是否已有实例在运行（全局单实例）
+	HANDLE hMutex = CreateMutex(NULL, TRUE, _T("WDToolBox_SingleInstance_Mutex"));
+	DWORD dwLastError = GetLastError();
+
+	if (hMutex != NULL && dwLastError == ERROR_ALREADY_EXISTS)
+	{
+		// 已有实例在运行，释放当前互斥体句柄
+		CloseHandle(hMutex);
+
+		// 尝试激活已存在的窗口
+		// 遍历所有窗口，查找属于其他 WDToolBox 进程的主窗口
+		struct FindWindowData
+		{
+			DWORD dwCurrentProcessId;
+			HWND hFoundWnd;
+		};
+
+		FindWindowData data;
+		data.dwCurrentProcessId = GetCurrentProcessId();
+		data.hFoundWnd = NULL;
+
+		EnumWindows([](HWND hWnd, LPARAM lParam) -> BOOL {
+			FindWindowData* pData = (FindWindowData*)lParam;
+			DWORD dwProcessId = 0;
+			GetWindowThreadProcessId(hWnd, &dwProcessId);
+
+			// 只查找属于其他进程的可见窗口
+			if (dwProcessId != pData->dwCurrentProcessId && IsWindowVisible(hWnd))
+			{
+				// 检查进程名是否为 WDToolBox.exe
+				TCHAR szProcessName[MAX_PATH] = { 0 };
+				HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessId);
+				if (hProcess != NULL)
+				{
+					HMODULE hMod;
+					DWORD cbNeeded;
+					if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded))
+					{
+						if (GetModuleBaseName(hProcess, hMod, szProcessName, MAX_PATH) > 0)
+						{
+							if (_tcsicmp(szProcessName, _T("WDToolBox.exe")) == 0)
+							{
+								// 找到 WDToolBox 窗口
+								pData->hFoundWnd = hWnd;
+								CloseHandle(hProcess);
+								return FALSE;  // 停止枚举
+							}
+						}
+					}
+					CloseHandle(hProcess);
+				}
+			}
+			return TRUE;  // 继续枚举
+		}, (LPARAM)&data);
+
+		if (data.hFoundWnd != NULL && IsWindow(data.hFoundWnd))
+		{
+			// 如果窗口最小化，恢复它
+			if (IsIconic(data.hFoundWnd))
+			{
+				ShowWindow(data.hFoundWnd, SW_RESTORE);
+			}
+			// 将窗口置于前台
+			SetForegroundWindow(data.hFoundWnd);
+			BringWindowToTop(data.hFoundWnd);
+		}
+
+		// 退出当前实例
+		return FALSE;
+	}
+
 	// 如果应用程序存在以下情况，Windows XP 上需要 InitCommonControlsEx()
 	// 使用 ComCtl32.dll 版本 6 或更高版本来启用可视化方式，
 	//则需要 InitCommonControlsEx()。  否则，将无法创建窗口。
