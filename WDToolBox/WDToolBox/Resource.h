@@ -1,4 +1,7 @@
-
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ 生成的包含文件。
+// 供 WDToolBox.rc 使用
+//
 #define IDM_ABOUTBOX                    0x0010
 #define IDD_ABOUTBOX                    100
 #define IDS_ABOUTBOX                    101
@@ -19,9 +22,17 @@
 #define IDC_LOG_SPLITTER                1010
 #define IDC_TASKTYPE                    1011
 #define IDC_EDITLIBNAME                 1012
-#define IDC_TASKNATURE                   1013
+#define IDC_TASKNATURE                  1013
 #define IDC_TIMEUSED                    1014
 #define IDC_WORKDESC                    1015
+#define IDC_WORKDESCRIB                 1016
+#define IDC_PROJECTNAME                 1017
+#define IDC_PROBLEMREASON               1018
+#define IDC_WORKDESCRIBE                1019
+#define IDC_NAME                        1021
+#define IDC_MANAGER                     1022
+#define IDC_COMBO2                      1023
+#define IDC_SYSTEM                      1023
 
 // Next default values for new objects
 // 
@@ -29,7 +40,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

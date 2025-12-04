@@ -9,6 +9,7 @@
 #include <shlwapi.h>
 #include <shellapi.h>
 #include "WriteWorkLogDlg.h"
+#include "WorkLogWriter.h"
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "shell32.lib")
@@ -579,10 +580,20 @@ void CWDToolBoxDlg::OnNMDblclkLogLibraryList(NMHDR* pNMHDR, LRESULT* pResult)
             if (dlg.DoModal() == IDOK)
             {
                 CString strLogContent = dlg.GetLogContent();
-                // 只有当日志内容不为空时才写入
+                CString strLogContenth = dlg.GetLogContenth();
+
+                // 写入结构化数据版本到 logs.txt
                 if (!strLogContent.IsEmpty())
                 {
                     m_workLogger.WriteLog(strLogContent); // 委托给 Manager 写入日志
+                }
+
+                // 写入人类可读版本到 logsh.txt
+                if (!strLogContenth.IsEmpty())
+                {
+                    // 直接使用 WorkLogWriter 的 ExecuteH 方法写入人类可读版本
+                    CWorkLogWriter writer;
+                    writer.ExecuteH(strLogContenth);
                 }
             }
         }

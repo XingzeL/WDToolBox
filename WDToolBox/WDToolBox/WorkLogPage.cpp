@@ -32,7 +32,7 @@ void CWorkLogPage::CreateControls(CWnd* pParent, const CRect& rectPage)
 	m_listLogCategory.Create(WS_CHILD | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
 		rectLogCategory, pParent, IDC_LOG_CATEGORY_LIST);
 	m_listLogCategory.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_listLogCategory.InsertColumn(0, _T("日志分类"), LVCFMT_LEFT, m_nLeftWidth - 20);
+	m_listLogCategory.InsertColumn(0, _T("任务分类"), LVCFMT_LEFT, m_nLeftWidth - 20);
 
 	// 创建分割条
 	CRect rectLogSplitter(rectPage.left + m_nLeftWidth, rectPage.top,
@@ -46,7 +46,7 @@ void CWorkLogPage::CreateControls(CWnd* pParent, const CRect& rectPage)
 	m_listLogLibrary.Create(WS_CHILD | WS_BORDER | LVS_REPORT | LVS_SINGLESEL,
 		rectLogLibrary, pParent, IDC_LOG_LIBRARY_LIST);
 	m_listLogLibrary.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
-	m_listLogLibrary.InsertColumn(0, _T("Library Name"), LVCFMT_LEFT, rectPage.Width() - m_nLeftWidth - 30);
+	m_listLogLibrary.InsertColumn(0, _T("库名称"), LVCFMT_LEFT, rectPage.Width() - m_nLeftWidth - 30);
 }
 
 void CWorkLogPage::UpdateLayout(const CRect& rectPage, int nLeftWidth)

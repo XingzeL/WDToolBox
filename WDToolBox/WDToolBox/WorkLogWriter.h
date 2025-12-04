@@ -15,6 +15,7 @@ public:
 	virtual ~CWorkLogWriter() {};
 
 	virtual BOOL Execute(const CString& strContent);
+	BOOL ExecuteH(const CString& strContent);  // ????????? logsh.txt
 private:
 	std::vector<CString> m_logs;
 };
