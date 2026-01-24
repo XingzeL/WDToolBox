@@ -98,3 +98,39 @@ desktop.ini
 #日志文件
 logs.txt
 log.txt
+
+# Qt 构建文件和目录
+build-*/
+build-*
+*.pro.user
+*.pro.user.*
+*.qmake.stash
+.qmake.stash
+.qmake.cache
+Makefile
+Makefile.*
+*.autosave
+
+# Qt 生成的源文件
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.moc
+
+# Qt Creator 相关
+*.creator.user
+*.creator.user.*
+*.creator.user.*.*
+
+# Qt 翻译文件（编译生成的）
+*.qm
+
+# Qt 临时文件
+*.qmlc
+*.jom
+*.qmlcache
+*.qmlc
+
+# Qt 资源文件（如果不想提交编译后的资源）
+*.rcc

@@ -133,13 +133,47 @@ void CToolManager::LoadToolIcons(CImageList& imageList)
 				// 如果提取失败，使用默认图标
 				if (hIcon == NULL)
 				{
-					hIcon = (HICON)LoadImage(NULL, IDI_APPLICATION, IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
+					// 使用LoadIcon获取系统图标，更可靠
+					hIcon = (HICON)LoadIcon(NULL, IDI_APPLICATION);
+					if (hIcon == NULL)
+					{
+						// 如果LoadIcon失败，尝试从shell32.dll加载图标
+						HMODULE hShell32 = LoadLibrary(_T("shell32.dll"));
+						if (hShell32 != NULL)
+						{
+							hIcon = (HICON)LoadImage(hShell32, MAKEINTRESOURCE(1), IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
+							FreeLibrary(hShell32);
+						}
+					}
 				}
 			}
 			else
 			{
-				// 文件不存在，使用默认图标
-				hIcon = (HICON)LoadImage(NULL, IDI_APPLICATION, IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
+				// 文件不存在，尝试使用SHGetFileInfo获取关联程序图标（对URL也有效）
+				SHFILEINFO sfi = { 0 };
+				// 使用SHGFI_USEFILEATTRIBUTES，即使文件不存在也能获取关联程序图标
+				if (SHGetFileInfo(tool.strPath, 0, &sfi, sizeof(sfi),
+					SHGFI_ICON | SHGFI_LARGEICON | SHGFI_USEFILEATTRIBUTES))
+				{
+					hIcon = sfi.hIcon;
+				}
+
+				// 如果无法获取关联程序图标，使用默认图标
+				if (hIcon == NULL)
+				{
+					// 使用LoadIcon获取系统图标，更可靠
+					hIcon = (HICON)LoadIcon(NULL, IDI_APPLICATION);
+					if (hIcon == NULL)
+					{
+						// 如果LoadIcon失败，尝试从shell32.dll加载图标
+						HMODULE hShell32 = LoadLibrary(_T("shell32.dll"));
+						if (hShell32 != NULL)
+						{
+							hIcon = (HICON)LoadImage(hShell32, MAKEINTRESOURCE(1), IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
+							FreeLibrary(hShell32);
+						}
+					}
+				}
 			}
 
 			if (hIcon != NULL)
