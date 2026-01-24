@@ -100,6 +100,7 @@ void MainWidget::InitializeControls()
     m_workLogPage->SetWorkLogManager(m_workLogger);
 
     // 注册观察者
+    // 这个接口是继承自CObservable的，将工具管理器加到m_vecObservers中
     m_toolManager->AddObserver(m_toolManagerPage);
     m_workLogger->AddObserver(m_workLogPage);
 

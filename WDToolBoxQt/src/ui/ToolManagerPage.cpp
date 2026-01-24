@@ -1,4 +1,4 @@
-// ToolManagerPage.cpp: ?????????
+// ToolManagerPage.cpp: Tool Manager Page implementation
 //
 #include "ToolManagerPage.h"
 #include "../core/ToolManager.h"
@@ -13,32 +13,32 @@ CToolManagerPage::CToolManagerPage(QWidget* parent)
     , m_pToolManager(nullptr)
     , m_nLeftWidth(200)
 {
-    // ????
+    // Create main layout
     QHBoxLayout* pMainLayout = new QHBoxLayout(this);
     pMainLayout->setContentsMargins(0, 0, 0, 0);
     pMainLayout->setSpacing(0);
 
-    // ?????
+    // Create splitter
     m_splitter = new QSplitter(Qt::Horizontal, this);
     pMainLayout->addWidget(m_splitter);
 
-    // ????????
+    // Create category list
     m_listCategory = new QListWidget(m_splitter);
     m_listCategory->setSelectionMode(QAbstractItemView::SingleSelection);
     m_splitter->addWidget(m_listCategory);
 
-    // ????????
+    // Create tool list
     m_listTool = new QListWidget(m_splitter);
     m_listTool->setViewMode(QListWidget::IconMode);
     m_listTool->setResizeMode(QListWidget::Adjust);
     m_listTool->setSpacing(10);
     m_splitter->addWidget(m_listTool);
 
-    // ???????
+    // Set stretch factors
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
 
-    // ?????
+    // Connect signals
     connect(m_listCategory, &QListWidget::itemSelectionChanged,
             this, &CToolManagerPage::onCategorySelectionChanged);
     connect(m_listTool, &QListWidget::itemDoubleClicked,
@@ -51,14 +51,14 @@ CToolManagerPage::~CToolManagerPage()
 
 void CToolManagerPage::updateLayout(int leftWidth)
 {
-    // ??????????
+    // Adjust width
     int nAdjustedWidth = leftWidth;
     if (nAdjustedWidth < 150)
         nAdjustedWidth = 150;
 
     m_nLeftWidth = nAdjustedWidth;
 
-    // ???????
+    // Update splitter sizes
     if (m_splitter)
     {
         QList<int> sizes;
@@ -67,27 +67,29 @@ void CToolManagerPage::updateLayout(int leftWidth)
     }
 }
 
-// IObserver ????
+// IObserver interface implementation
+// ToolManager是被观察者，ToolManagerPage是观察者，当ToolManager的数据发生变化时
+// 由ToolManager调用NotifyObservers并传入对应QString通知ToolManagerPage
 void CToolManagerPage::OnDataChanged(const QString& strEventType, void* pData)
 {
     Q_UNUSED(pData);
     if (m_pToolManager == nullptr)
         return;
 
-    // ????????UI
+    // Update UI
     if (strEventType == QString("ConfigLoaded") || strEventType == QString("CategoryAdded"))
     {
-        // ????????????????
+        // Refresh category list
         RefreshCategoryList();
     }
     else if (strEventType == QString("ToolAdded"))
     {
-        // ???????????
+        // Refresh tool list
         RefreshToolList();
     }
     else if (strEventType == QString("DataCleared"))
     {
-        // ?????????
+        // Clear lists
         if (m_listCategory)
         {
             m_listCategory->clear();
@@ -99,7 +101,7 @@ void CToolManagerPage::OnDataChanged(const QString& strEventType, void* pData)
     }
 }
 
-// ??????
+// Refresh category list
 void CToolManagerPage::RefreshCategoryList()
 {
     if (m_pToolManager == nullptr || !m_listCategory)
@@ -115,7 +117,7 @@ void CToolManagerPage::RefreshCategoryList()
         m_listCategory->addItem(category);
     }
 
-    // ???????
+    // Select first category
     if (m_listCategory->count() > 0)
     {
         m_listCategory->setCurrentRow(0);
@@ -123,13 +125,13 @@ void CToolManagerPage::RefreshCategoryList()
     }
 }
 
-// ??????
+// Refresh tool list
 void CToolManagerPage::RefreshToolList()
 {
     if (m_pToolManager == nullptr || !m_listTool)
         return;
 
-    // ?????????
+    // Get selected category
     QListWidgetItem* pCurrentItem = m_listCategory->currentItem();
     if (!pCurrentItem)
         return;
