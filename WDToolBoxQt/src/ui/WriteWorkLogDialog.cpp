@@ -61,7 +61,7 @@ CWriteWorkLogDialog::CWriteWorkLogDialog(QWidget* parent)
     m_comboManager = new QComboBox(this);
     m_comboManager->addItem("刘跃雷");
     m_comboManager->addItem("张伟");
-    m_comboManager->addItem("李曜");
+    m_comboManager->addItem("李耀");
     m_comboManager->addItem("唐旭");
     m_comboManager->addItem("李勃");
     m_comboManager->addItem("刘亚雷");
