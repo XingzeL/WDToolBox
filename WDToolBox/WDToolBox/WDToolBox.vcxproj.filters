@@ -33,9 +33,6 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ToolInfo.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Executor.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -60,12 +57,21 @@
     <ClInclude Include="WorkLogPage.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ToolManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Observer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigReader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigFileWatcher.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WDToolBox.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ToolInfo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WDToolBoxDlg.cpp">
@@ -93,6 +99,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WorkLogPage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Observer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigReader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigFileWatcher.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

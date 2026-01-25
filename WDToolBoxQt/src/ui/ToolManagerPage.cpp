@@ -1,4 +1,4 @@
-// ToolManagerPage.cpp: Tool Manager Page implementation
+﻿// ToolManagerPage.cpp: Tool Manager Page implementation
 //
 #include "ToolManagerPage.h"
 #include "../core/ToolManager.h"
@@ -140,18 +140,15 @@ void CToolManagerPage::RefreshToolList()
 
     m_listTool->clear();
 
-    // ??????????????
     std::vector<ToolInfo> tools;
     if (m_pToolManager->GetToolsByCategory(strCategory, tools))
     {
-        // ?????????????UI
         for (const ToolInfo& tool : tools)
         {
             QListWidgetItem* pItem = new QListWidgetItem(tool.icon, tool.name, m_listTool);
             pItem->setData(Qt::UserRole, QVariant::fromValue(tool));
         }
     }
-    // ????????tools ?????????
 }
 
 void CToolManagerPage::onCategorySelectionChanged()
