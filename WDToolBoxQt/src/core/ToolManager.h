@@ -1,4 +1,4 @@
-// ToolManager.h: 工具管理器类
+﻿// ToolManager.h: 工具管理器类
 //
 
 #pragma once
@@ -26,7 +26,9 @@ public:
     void AddTool(const QString& strCategory, const QString& strName, const QString& strPath, bool bNotify = true);
 
     // 获取指定分类的所有工具
-    std::vector<ToolInfo>& GetToolsByCategory(const QString& strCategory);
+    // 返回 true 表示分类存在，false 表示分类不存在
+    // tools 作为传出参数，如果分类不存在则为空
+    bool GetToolsByCategory(const QString& strCategory, std::vector<ToolInfo>& tools) const;
 
     // 获取所有分类名称
     void GetAllCategories(std::vector<QString>& categories);
@@ -37,8 +39,11 @@ public:
     // 加载默认工具配置
     void LoadDefaultTools();
 
-    // 加载工具图标
+    // 加载工具图标（填充到列表控件）
     void LoadToolIcons(QListWidget* pListWidget);
+
+    // 加载所有工具图标（只填充tool.icon，不创建列表项）
+    void LoadAllToolIcons();
 
     // 执行工具（委托给 Executor）
     bool ExecuteTool(const ToolInfo& tool);

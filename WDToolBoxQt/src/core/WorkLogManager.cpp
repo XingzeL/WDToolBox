@@ -7,6 +7,7 @@
 #include "../infrastructure/ConfigReader.h"
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QDebug>
 
 CWorkLogManager::CWorkLogManager(IConfigReader* pConfigReader, CExecutor* pExecutor)
     : m_pConfigReader(pConfigReader)
@@ -71,6 +72,8 @@ bool CWorkLogManager::LoadFromConfig(const QString& strConfigPath)
 {
     // 清空现有数据
     Clear();
+    //m_mapLibraries.clear();
+    //m_vecCategoryOrder.clear();
 
     // 获取配置文件路径（如果未指定，使用程序目录下的 worklogs.ini）
     QString strIniPath = strConfigPath;
@@ -101,12 +104,20 @@ bool CWorkLogManager::LoadFromConfig(const QString& strConfigPath)
     }
 
     // 遍历每个分类，加载日志库
-    for (const QString& strCategory : vecSections)
+    qDebug() << "CWorkLogManager::LoadFromConfig Before AddLibrary: ";
+    for (QString& tmp : vecSections)
+    {
+        qDebug() << tmp;
+    }
+
+    qDebug() << "Inside For Loop to AddLibrary: ";
+    for (QString& strCategory : vecSections)
     {
         // 获取该分类下的所有键（库名称）
         std::vector<QString> vecKeys;
         if (m_pConfigReader->GetKeys(strCategory, vecKeys))
         {
+            qDebug() << "Iters " << strCategory; //According to the output, Iters all strings
             // 遍历每个库
             for (const QString& strKey : vecKeys)
             {
@@ -161,9 +172,25 @@ void CWorkLogManager::LoadDefaultLibraries()
     NotifyObservers(QString("ConfigLoaded"), nullptr);
 }
 
-std::vector<LogLibraryInfo>& CWorkLogManager::GetLibrariesByCategory(const QString& strCategory)
+bool CWorkLogManager::GetLibrariesByCategory(const QString& strCategory, std::vector<LogLibraryInfo>& libraries) const  //确保成员不被修改
 {
-    return m_mapLibraries[strCategory];
+    qDebug() << "GetLibrariesByCategory called with category: " << strCategory;
+
+    libraries.clear();  // 清空传出参数
+
+    auto it = m_mapLibraries.find(strCategory); // m_mapLibraries[strCategory] 在没有键的情况下会自动创建一个键。这个函数最后被定义为const后缀，同样防止这种情况出现
+    if (it != m_mapLibraries.end())
+    {
+        qDebug() << "GetLibrariesByCategory - Found category: " << strCategory << ", libraries count: " << it->second.size();
+        libraries = it->second;  // 复制数据到传出参数
+        return true;  // 分类存在
+    }
+    else
+    {
+        qDebug() << "GetLibrariesByCategory - Category not found: " << strCategory;
+        // libraries 已经是空的，不需要操作
+        return false;
+    }
 }
 
 void CWorkLogManager::GetAllCategories(std::vector<QString>& categories)
@@ -182,6 +209,7 @@ void CWorkLogManager::GetAllCategories(std::vector<QString>& categories)
 
 void CWorkLogManager::Clear()
 {
+    qDebug() << "CWorkLogManager::Clear(), clear m_mapLibraries";
     m_mapLibraries.clear();
     m_vecCategoryOrder.clear();
 
@@ -205,9 +233,19 @@ void CWorkLogManager::AddLibrary(const QString& strCategory, const QString& strN
     library.category = strCategory;
 
     // 如果是新分类，记录到顺序列表中
-    bool bNewCategory = (m_mapLibraries.find(strCategory) == m_mapLibraries.end());
+    qDebug() << "CWorkLogManager::AddLibrary: ";
+    QString temp = QString("");
+    for (const auto& iter : m_mapLibraries)
+    {
+        temp += iter.first;
+        temp += " ,";
+    }
+    qDebug() << temp;
+
+    bool bNewCategory = (m_mapLibraries.find(strCategory) == m_mapLibraries.end()); //问题出在m_mapLibraries在刚开始的时候不是空的，而是有一个键
     if (bNewCategory)
     {
+        qDebug() << "CWorkLogManager::AddLibrary() Add in map:" << strCategory;
         m_vecCategoryOrder.push_back(strCategory);
     }
 

@@ -27,7 +27,9 @@ public:
     void LoadDefaultLibraries();
 
     // 获取指定分类的所有日志库
-    std::vector<LogLibraryInfo>& GetLibrariesByCategory(const QString& strCategory);
+    // 返回 true 表示分类存在，false 表示分类不存在
+    // libraries 作为传出参数，如果分类不存在则为空
+    bool GetLibrariesByCategory(const QString& strCategory, std::vector<LogLibraryInfo>& libraries) const;
 
     // 获取所有分类名称
     void GetAllCategories(std::vector<QString>& categories);

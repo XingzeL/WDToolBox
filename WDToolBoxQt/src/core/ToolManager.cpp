@@ -12,6 +12,7 @@
 #include <QListWidget>
 #include <QStyle>
 #include <QApplication>
+#include <QDebug>
 
 CToolManager::CToolManager(IConfigReader* pConfigReader, CExecutor* pExecutor)
     : m_pConfigReader(pConfigReader)
@@ -68,7 +69,7 @@ void CToolManager::AddTool(const QString& strCategory, const QString& strName, c
     }
 
     m_mapTools[strCategory].push_back(tool);
-
+    qDebug() << "       strPath:" << strPath;
     // 只有在需要通知时才通知观察者（批量加载时设为 false，避免频繁通知）
     if (bNotify)
     {
@@ -83,9 +84,23 @@ void CToolManager::AddTool(const QString& strCategory, const QString& strName, c
     }
 }
 
-std::vector<ToolInfo>& CToolManager::GetToolsByCategory(const QString& strCategory)
+bool CToolManager::GetToolsByCategory(const QString& strCategory, std::vector<ToolInfo>& tools) const
 {
-    return m_mapTools[strCategory];
+    tools.clear();  // 清空传出参数
+
+    auto it = m_mapTools.find(strCategory);
+    if (it != m_mapTools.end())
+    {
+        qDebug() << "GetToolsByCategory - Found category: " << strCategory << ", tools count: " << it->second.size();
+        tools = it->second;  // 复制数据到传出参数
+        return true;  // 分类存在
+    }
+    else
+    {
+        qDebug() << "GetToolsByCategory - Category not found: " << strCategory;
+        // tools 已经是空的，不需要操作
+        return false;  // 分类不存在
+    }
 }
 
 void CToolManager::GetAllCategories(std::vector<QString>& categories)
@@ -98,6 +113,80 @@ void CToolManager::GetAllCategories(std::vector<QString>& categories)
         if (m_mapTools.find(m_vecCategoryOrder[i]) != m_mapTools.end())
         {
             categories.push_back(m_vecCategoryOrder[i]);
+        }
+    }
+}
+
+// Helper function to load icon for a single tool
+static QIcon LoadIconForTool(const QString& strPath)
+{
+    QFileIconProvider provider;
+    QIcon icon;
+    QString strPathLower = strPath.toLower();
+
+    // 检查是否是URL（http://或https://开头）
+    bool bIsURL = strPathLower.startsWith("http://") || strPathLower.startsWith("https://");
+
+    // 检查是否是HTML文件
+    bool bIsHTML = strPathLower.endsWith(".html") || strPathLower.endsWith(".htm");
+
+    // 特殊处理 URL 和 HTML 文件
+    if (bIsURL || bIsHTML)
+    {
+        // 优先使用文件图标提供者的网络图标
+        icon = provider.icon(QFileIconProvider::Network);
+
+        // 如果网络图标不可用，尝试使用标准图标
+        if (icon.isNull())
+        {
+            QApplication* pApp = qApp;
+            if (pApp)
+            {
+                QStyle* pStyle = pApp->style();
+                if (pStyle)
+                {
+                    // 使用网络驱动器图标（表示网络资源）
+                    icon = pStyle->standardIcon(QStyle::SP_DriveNetIcon);
+                }
+            }
+        }
+
+        // 如果还是不可用，使用文件图标作为后备
+        if (icon.isNull())
+        {
+            icon = provider.icon(QFileIconProvider::File);
+        }
+    }
+    // 从文件提取图标（跨平台）
+    else if (QFileInfo::exists(strPath))
+    {
+        QFileInfo fileInfo(strPath);
+        icon = provider.icon(fileInfo);
+    }
+    else
+    {
+        // 文件不存在，尝试使用文件信息获取关联程序图标
+        QFileInfo fileInfo(strPath);
+        icon = provider.icon(fileInfo);
+    }
+
+    // 如果无法获取图标，使用默认图标
+    if (icon.isNull())
+    {
+        icon = provider.icon(QFileIconProvider::File);
+    }
+
+    return icon;
+}
+
+void CToolManager::LoadAllToolIcons()
+{
+    // 只填充tool.icon，不创建列表项
+    for (auto& categoryPair : m_mapTools)
+    {
+        for (auto& tool : categoryPair.second)
+        {
+            tool.icon = LoadIconForTool(tool.path);
         }
     }
 }
@@ -117,64 +206,14 @@ void CToolManager::LoadToolIcons(QListWidget* pListWidget)
     {
         for (auto& tool : categoryPair.second)
         {
-            QIcon icon;
-            QString strPathLower = tool.path.toLower();
-
-            // 检查是否是URL（http://或https://开头）
-            bool bIsURL = strPathLower.startsWith("http://") || strPathLower.startsWith("https://");
-
-            // 检查是否是HTML文件
-            bool bIsHTML = strPathLower.endsWith(".html") || strPathLower.endsWith(".htm");
-
-            // 特殊处理 URL 和 HTML 文件
-            if (bIsURL || bIsHTML)
+            // 如果图标未加载，先加载图标
+            if (tool.icon.isNull())
             {
-                // 优先使用文件图标提供者的网络图标
-                icon = provider.icon(QFileIconProvider::Network);
-
-                // 如果网络图标不可用，尝试使用标准图标
-                if (icon.isNull())
-                {
-                    QApplication* pApp = qApp;
-                    if (pApp)
-                    {
-                        QStyle* pStyle = pApp->style();
-                        if (pStyle)
-                        {
-                            // 使用网络驱动器图标（表示网络资源）
-                            icon = pStyle->standardIcon(QStyle::SP_DriveNetIcon);
-                        }
-                    }
-                }
-
-                // 如果还是不可用，使用文件图标作为后备
-                if (icon.isNull())
-                {
-                    icon = provider.icon(QFileIconProvider::File);
-                }
-            }
-            // 从文件提取图标（跨平台）
-            else if (QFileInfo::exists(tool.path))
-            {
-                QFileInfo fileInfo(tool.path);
-                icon = provider.icon(fileInfo);
-            }
-            else
-            {
-                // 文件不存在，尝试使用文件信息获取关联程序图标
-                QFileInfo fileInfo(tool.path);
-                icon = provider.icon(fileInfo);
-            }
-
-            // 如果无法获取图标，使用默认图标
-            if (icon.isNull())
-            {
-                icon = provider.icon(QFileIconProvider::File);
+                tool.icon = LoadIconForTool(tool.path);
             }
 
             // 创建列表项并设置图标
-            new QListWidgetItem(icon, tool.name, pListWidget);
-            tool.icon = icon;
+            new QListWidgetItem(tool.icon, tool.name, pListWidget);
             tool.iconIndex = nIndex++;
         }
     }
@@ -216,8 +255,9 @@ bool CToolManager::ExecuteTool(const QString& strPath)
 
 bool CToolManager::LoadFromConfig(const QString& strConfigPath)
 {
-    // 清空现有数据
-    Clear();
+    // 清空现有数据（但不通知观察者，避免UI闪烁）
+    m_mapTools.clear();
+    m_vecCategoryOrder.clear();
 
     // 获取配置文件路径（如果未指定，使用程序目录下的 tools.ini）
     QString strIniPath = strConfigPath;
@@ -252,6 +292,8 @@ bool CToolManager::LoadFromConfig(const QString& strConfigPath)
     {
         // 获取该分类下的所有键（工具名称）
         std::vector<QString> vecKeys;
+        qDebug() << "strCategory: " << strCategory;
+
         if (m_pConfigReader->GetKeys(strCategory, vecKeys))
         {
             // 遍历每个工具
@@ -259,6 +301,7 @@ bool CToolManager::LoadFromConfig(const QString& strConfigPath)
             {
                 // 获取工具路径
                 QString strToolPath = m_pConfigReader->GetValue(strCategory, strToolName);
+                qDebug() << "   strToolName: " << strToolName;
                 if (!strToolPath.isEmpty())
                 {
                     // 去除引号
@@ -278,9 +321,36 @@ bool CToolManager::LoadFromConfig(const QString& strConfigPath)
             }
         }
     }
-
+    qDebug() << " ";
     // 通知观察者：配置已加载
+
+    //2026.01.25在更新配置文件时，m_mapTools经过qDebug()所有的内容都是完整的，但是出现配置文件更新后这个函数插入内容没有插入完整的工具信息，而且没有图标
+    //我觉得更新配置文件的时候只调用CToolManager::LoadFromConfig可能是不够的
+
+    // 在通知观察者之前，先加载所有工具图标，确保UI更新时图标已准备好
+    LoadAllToolIcons();
+
+    // 验证数据完整性
+    qDebug() << "LoadFromConfig - Before NotifyObservers, m_mapTools contents:";
+    for (auto &it : m_mapTools)
+    {
+        qDebug() << "  Category: " << it.first << ", Tools count: " << it.second.size();
+        for(auto &toolInfo : it.second)
+        {
+            qDebug() << "    Tool: " << toolInfo.name << ", path: " << toolInfo.path;
+        }
+    }
+    qDebug() << "LoadFromConfig - Total categories: " << m_mapTools.size();
+
     NotifyObservers(QString("ConfigLoaded"), nullptr);
+
+    // 通知后再次验证
+    qDebug() << "LoadFromConfig - After NotifyObservers, m_mapTools contents:";
+    for (auto &it : m_mapTools)
+    {
+        qDebug() << "  Category: " << it.first << ", Tools count: " << it.second.size();
+    }
+    qDebug() << " ";
 
     return true;
 }

@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
     MainWidget widget;
-    widget.setWindowTitle("WDToolBox(Qt) - Hoshisawa");
+    widget.setWindowTitle("WDToolBox(v2.0) - Hoshisawa");
 
     // Set window icon
     // Method 1: Load from file path (relative to executable)

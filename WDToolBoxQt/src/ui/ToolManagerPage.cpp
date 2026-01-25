@@ -68,8 +68,6 @@ void CToolManagerPage::updateLayout(int leftWidth)
 }
 
 // IObserver interface implementation
-// ToolManager是被观察者，ToolManagerPage是观察者，当ToolManager的数据发生变化时
-// 由ToolManager调用NotifyObservers并传入对应QString通知ToolManagerPage
 void CToolManagerPage::OnDataChanged(const QString& strEventType, void* pData)
 {
     Q_UNUSED(pData);
@@ -142,12 +140,18 @@ void CToolManagerPage::RefreshToolList()
 
     m_listTool->clear();
 
-    std::vector<ToolInfo>& tools = m_pToolManager->GetToolsByCategory(strCategory);
-    for (const ToolInfo& tool : tools)
+    // ??????????????
+    std::vector<ToolInfo> tools;
+    if (m_pToolManager->GetToolsByCategory(strCategory, tools))
     {
-        QListWidgetItem* pItem = new QListWidgetItem(tool.icon, tool.name, m_listTool);
-        pItem->setData(Qt::UserRole, QVariant::fromValue(tool));
+        // ?????????????UI
+        for (const ToolInfo& tool : tools)
+        {
+            QListWidgetItem* pItem = new QListWidgetItem(tool.icon, tool.name, m_listTool);
+            pItem->setData(Qt::UserRole, QVariant::fromValue(tool));
+        }
     }
+    // ????????tools ?????????
 }
 
 void CToolManagerPage::onCategorySelectionChanged()

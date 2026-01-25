@@ -6,6 +6,7 @@
 #include "../infrastructure/WorkLogWriter.h"
 #include <QListWidgetItem>
 #include <QDialog>
+#include <QDebug>
 
 CWorkLogPage::CWorkLogPage(QWidget* parent)
     : TabPageBase(parent)
@@ -40,7 +41,7 @@ CWorkLogPage::CWorkLogPage(QWidget* parent)
 
     // ?????
     connect(m_listLogCategory, &QListWidget::itemSelectionChanged,
-            this, &CWorkLogPage::onCategorySelectionChanged);
+            this, &CWorkLogPage::onCategorySelectionChanged);  //itemSelectonChanged????????????????(????clear)????
     connect(m_listLogLibrary, &QListWidget::itemDoubleClicked,
             this, &CWorkLogPage::onLibraryDoubleClicked);
 }
@@ -74,23 +75,20 @@ void CWorkLogPage::OnDataChanged(const QString& strEventType, void* pData)
     if (m_pWorkLogManager == nullptr)
         return;
 
-    // ????????UI
     if (strEventType == QString("ConfigLoaded") || strEventType == QString("CategoryAdded"))
     {
-        // ????????????????
         RefreshCategoryList();
     }
     else if (strEventType == QString("LibraryAdded"))
     {
-        // ?????????
         RefreshLibraryList();
     }
     else if (strEventType == QString("DataCleared"))
     {
-        // ?????????
         if (m_listLogCategory)
         {
             m_listLogCategory->clear();
+            //20260125???Clear()???OnDataChanged("DataCleared")->m_listLogCategory->clear(); ??m_listLogCategory?QListWidget,?clear??????itemSelectionChanged????????????CWorkLogPage::RefreshLibraryList()???
         }
         if (m_listLogLibrary)
         {
@@ -99,7 +97,6 @@ void CWorkLogPage::OnDataChanged(const QString& strEventType, void* pData)
     }
 }
 
-// ??????
 void CWorkLogPage::RefreshCategoryList()
 {
     if (m_pWorkLogManager == nullptr || !m_listLogCategory)
@@ -112,24 +109,23 @@ void CWorkLogPage::RefreshCategoryList()
 
     for (const QString& category : categories)
     {
+        qDebug() << "CWorkLogPage::RefreshCategoryList() - Categories: " << category;
         m_listLogCategory->addItem(category);
     }
 
-    // ???????
     if (m_listLogCategory->count() > 0)
     {
         m_listLogCategory->setCurrentRow(0);
         RefreshLibraryList();
     }
+    qDebug() << " ";
 }
 
-// ???????
 void CWorkLogPage::RefreshLibraryList()
 {
     if (m_pWorkLogManager == nullptr || !m_listLogLibrary)
         return;
 
-    // ?????????
     QListWidgetItem* pCurrentItem = m_listLogCategory->currentItem();
     if (!pCurrentItem)
         return;
@@ -140,15 +136,23 @@ void CWorkLogPage::RefreshLibraryList()
 
     m_listLogLibrary->clear();
 
-    std::vector<LogLibraryInfo>& libraries = m_pWorkLogManager->GetLibrariesByCategory(strCategory);
-    for (const LogLibraryInfo& library : libraries)
+    // ???????????????
+    std::vector<LogLibraryInfo> libraries;
+    if (m_pWorkLogManager->GetLibrariesByCategory(strCategory, libraries))
     {
-        m_listLogLibrary->addItem(library.name);
+        // ??????????????UI
+        for (const LogLibraryInfo& library : libraries)
+        {
+            m_listLogLibrary->addItem(library.name);
+            qDebug() << "LogPage -  Adding library: " << library.name;
+        }
     }
+    // ????????libraries ?????????
 }
 
 void CWorkLogPage::onCategorySelectionChanged()
 {
+    //itemSelectonChanged????????????????(????clear)????
     RefreshLibraryList();
 }
 
