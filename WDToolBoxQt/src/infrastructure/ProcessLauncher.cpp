@@ -1,11 +1,9 @@
-#include "ProcessLauncher.h"
+﻿#include "ProcessLauncher.h"
 #include <QProcess>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QFileInfo>
-#ifdef Q_OS_WIN
 #include <QDir>
-#endif
 
 // 启动工具
 bool CProcessLauncher::LaunchTool(const QString& strPath)
@@ -26,6 +24,14 @@ bool CProcessLauncher::LaunchTool(const QString& strPath)
     {
         // 直接使用默认浏览器打开
         return QDesktopServices::openUrl(QUrl(strPath));
+    }
+
+    // 检查是否是文件夹路径（跨平台）
+    QFileInfo fileInfo(strPath);
+    if (fileInfo.exists() && fileInfo.isDir())
+    {
+        // 使用 QDesktopServices 打开文件夹（跨平台）
+        return QDesktopServices::openUrl(QUrl::fromLocalFile(QDir::toNativeSeparators(strPath)));
     }
 
 #ifdef Q_OS_WIN

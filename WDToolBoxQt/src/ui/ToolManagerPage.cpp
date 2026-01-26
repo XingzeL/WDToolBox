@@ -4,6 +4,13 @@
 #include "../core/ToolManager.h"
 #include "../core/ToolInfo.h"
 #include <QListWidgetItem>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QUrl>
+#include <QFileInfo>
+#include <QMessageBox>
+#include <QDir>
 
 CToolManagerPage::CToolManagerPage(QWidget* parent)
     : TabPageBase(parent)
@@ -32,6 +39,9 @@ CToolManagerPage::CToolManagerPage(QWidget* parent)
     m_listTool->setViewMode(QListWidget::IconMode);
     m_listTool->setResizeMode(QListWidget::Adjust);
     m_listTool->setSpacing(10);
+    // ??????????????????
+    m_listTool->setAcceptDrops(true);
+    m_listTool->setDragDropMode(QAbstractItemView::DropOnly);
     m_splitter->addWidget(m_listTool);
 
     // Set stretch factors
@@ -43,6 +53,9 @@ CToolManagerPage::CToolManagerPage(QWidget* parent)
             this, &CToolManagerPage::onCategorySelectionChanged);
     connect(m_listTool, &QListWidget::itemDoubleClicked,
             this, &CToolManagerPage::onToolDoubleClicked);
+
+    // ????????????????????????
+    setAcceptDrops(true);
 }
 
 CToolManagerPage::~CToolManagerPage()
@@ -163,4 +176,131 @@ void CToolManagerPage::onToolDoubleClicked(QListWidgetItem* item)
 
     ToolInfo tool = item->data(Qt::UserRole).value<ToolInfo>();
     m_pToolManager->ExecuteTool(tool);
+}
+
+void CToolManagerPage::dragEnterEvent(QDragEnterEvent* event)
+{
+    // ??????????????
+    if (event->mimeData()->hasUrls())
+    {
+        event->acceptProposedAction();
+    }
+    else
+    {
+        event->ignore();
+    }
+}
+
+void CToolManagerPage::dropEvent(QDropEvent* event)
+{
+    if (!m_pToolManager || !event->mimeData()->hasUrls())
+    {
+        event->ignore();
+        return;
+    }
+
+    QListWidgetItem* pCurrentCategoryItem = m_listCategory->currentItem();
+    if (!pCurrentCategoryItem)
+    {
+        QMessageBox::warning(this, "??", "?????????");
+        event->ignore();
+        return;
+    }
+
+    QString strCategory = pCurrentCategoryItem->text();
+    if (strCategory.isEmpty())
+    {
+        event->ignore();
+        return;
+    }
+
+
+    QList<QUrl> urls = event->mimeData()->urls();
+    int nAddedCount = 0;
+    int nFailedCount = 0;
+
+    for (const QUrl& url : urls)
+    {
+        if (!url.isLocalFile())
+            continue;
+
+        QString strFilePath = url.toLocalFile();
+        QFileInfo fileInfo(strFilePath);
+
+
+        if (!fileInfo.exists())
+        {
+            nFailedCount++;
+            continue;
+        }
+
+        QString strToolName = fileInfo.fileName();
+        if (strToolName.isEmpty())
+        {
+            strToolName = QDir(strFilePath).dirName();
+        }
+
+        QString strOriginalToolName = strToolName;
+        int nIndex = 1;
+        while (true)
+        {
+            std::vector<ToolInfo> existingTools;
+            if (m_pToolManager->GetToolsByCategory(strCategory, existingTools))
+            {
+                bool bExists = false;
+                for (const ToolInfo& tool : existingTools)
+                {
+                    if (tool.name == strToolName)
+                    {
+                        bExists = true;
+                        break;
+                    }
+                }
+                if (!bExists)
+                    break;
+            }
+            else
+            {
+                break;
+            }
+
+            strToolName = strOriginalToolName + QString(" (%1)").arg(nIndex);
+            nIndex++;
+        }
+
+        QString strFullPath = QDir::toNativeSeparators(strFilePath);
+
+        m_pToolManager->AddTool(strCategory, strToolName, strFullPath, true);
+        nAddedCount++;
+    }
+
+    if (nAddedCount > 0)
+    {
+        if (!m_pToolManager->SaveToConfig())
+        {
+            QMessageBox::warning(this, "警告", "工具已添加，但保存配置文件失败！");
+        }
+    }
+
+    if (nAddedCount > 0 && nFailedCount == 0)
+    {
+        if (nAddedCount == 1)
+        {
+            //QMessageBox::information(this, "成功", QString("已添加 1 个工具到分类 \"%1\"").arg(strCategory));
+        }
+        else
+        {
+            //QMessageBox::information(this, "成功", QString("已添加 %1 个工具到分类 \"%2\"").arg(nAddedCount).arg(strCategory));
+        }
+    }
+    else if (nAddedCount > 0 && nFailedCount > 0)
+    {
+        QMessageBox::warning(this, "部分成功", QString("成功添加 %1 个工具，%2 个失败").arg(nAddedCount).arg(nFailedCount));
+    }
+    else if (nAddedCount == 0)
+    {
+        QMessageBox::warning(this, "失败", "未能添加任何工具，请检查文件路径是否正确。");
+    }
+
+    event->acceptProposedAction();
 }

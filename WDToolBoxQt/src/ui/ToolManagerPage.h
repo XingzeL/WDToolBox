@@ -1,10 +1,13 @@
-#pragma once
+﻿#pragma once
 #include "TabPageBase.h"
 #include "../infrastructure/Observer.h"
 #include <QListWidget>
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 
 // Forward declaration
 class CToolManager;
@@ -39,6 +42,11 @@ public:
 
     // Refresh tool list (based on selected category)
     void RefreshToolList();
+
+protected:
+    // ??????
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
 
 private slots:
     void onCategorySelectionChanged();

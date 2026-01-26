@@ -58,6 +58,9 @@ public:
     // 获取当前使用的配置文件路径（供外部使用）
     QString GetConfigPath() const { return m_strConfigPath; }
 
+    // 保存工具配置到文件
+    bool SaveToConfig(const QString& strConfigPath = "");
+
 private:
     IConfigReader* m_pConfigReader;  // 配置读取器（依赖注入）
     bool m_bOwnConfigReader;         // 是否拥有 ConfigReader 的所有权

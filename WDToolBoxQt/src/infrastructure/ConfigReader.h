@@ -32,6 +32,12 @@ public:
 
     // 清空配置数据
     virtual void Clear() = 0;
+
+    // 设置配置值
+    virtual bool SetValue(const QString& strSection, const QString& strKey, const QString& strValue) = 0;
+
+    // 保存配置到文件
+    virtual bool SaveToFile(const QString& strFilePath = "") = 0;
 };
 
 // INI文件配置读取器实现
@@ -49,6 +55,8 @@ public:
     virtual bool GetSections(std::vector<QString>& vecSections) override;
     virtual bool IsLoaded() const override { return m_bLoaded; }
     virtual void Clear() override;
+    virtual bool SetValue(const QString& strSection, const QString& strKey, const QString& strValue) override;
+    virtual bool SaveToFile(const QString& strFilePath = "") override;
 
 private:
     bool m_bLoaded;

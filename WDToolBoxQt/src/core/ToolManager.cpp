@@ -12,6 +12,7 @@
 #include <QListWidget>
 #include <QStyle>
 #include <QApplication>
+#include <QDir>
 #include <QDebug>
 
 CToolManager::CToolManager(IConfigReader* pConfigReader, CExecutor* pExecutor)
@@ -199,18 +200,14 @@ void CToolManager::LoadToolIcons(QListWidget* pListWidget)
     // 清空列表
     pListWidget->clear();
 
-    QFileIconProvider provider;
     int nIndex = 0;
 
     for (auto& categoryPair : m_mapTools)
     {
         for (auto& tool : categoryPair.second)
         {
-            // 如果图标未加载，先加载图标
-            if (tool.icon.isNull())
-            {
-                tool.icon = LoadIconForTool(tool.path);
-            }
+            // 总是重新加载图标，确保应用最新的 element.ico 逻辑
+            tool.icon = LoadIconForTool(tool.path);
 
             // 创建列表项并设置图标
             new QListWidgetItem(tool.icon, tool.name, pListWidget);
@@ -403,4 +400,49 @@ void CToolManager::Clear()
 
     // 通知观察者：数据已清空
     NotifyObservers(QString("DataCleared"), nullptr);
+}
+
+bool CToolManager::SaveToConfig(const QString& strConfigPath)
+{
+    if (m_pConfigReader == nullptr)
+        return false;
+
+    // 获取配置文件路径（如果未指定，使用当前配置路径）
+    QString strIniPath = strConfigPath;
+    if (strIniPath.isEmpty())
+    {
+        strIniPath = m_strConfigPath;
+        if (strIniPath.isEmpty())
+        {
+            strIniPath = GetDefaultConfigPath();
+        }
+    }
+
+    // 先加载现有配置（如果文件存在），以保留其他配置项
+    if (QFileInfo::exists(strIniPath))
+    {
+        m_pConfigReader->LoadFromFile(strIniPath);
+    }
+
+    // 将内存中的工具数据写入 ConfigReader
+    for (const QString& strCategory : m_vecCategoryOrder)
+    {
+        auto it = m_mapTools.find(strCategory);
+        if (it == m_mapTools.end())
+            continue;
+
+        for (const ToolInfo& tool : it->second)
+        {
+            m_pConfigReader->SetValue(strCategory, tool.name, tool.path);
+        }
+    }
+
+    // 保存到文件
+    bool bResult = m_pConfigReader->SaveToFile(strIniPath);
+    if (bResult)
+    {
+        m_strConfigPath = strIniPath;
+    }
+
+    return bResult;
 }
