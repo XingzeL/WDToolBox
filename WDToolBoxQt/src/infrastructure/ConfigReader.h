@@ -1,4 +1,4 @@
-﻿// ConfigReader.h: 统一配置读取接口
+// ConfigReader.h: 统一配置读取接口
 //
 #pragma once
 #include <vector>
@@ -36,6 +36,12 @@ public:
     // 设置配置值
     virtual bool SetValue(const QString& strSection, const QString& strKey, const QString& strValue) = 0;
 
+    // 删除配置值
+    virtual bool RemoveValue(const QString& strSection, const QString& strKey) = 0;
+
+    // 删除节下的所有键（保留节）
+    virtual bool ClearSection(const QString& strSection) = 0;
+
     // 保存配置到文件
     virtual bool SaveToFile(const QString& strFilePath = "") = 0;
 };
@@ -56,6 +62,8 @@ public:
     virtual bool IsLoaded() const override { return m_bLoaded; }
     virtual void Clear() override;
     virtual bool SetValue(const QString& strSection, const QString& strKey, const QString& strValue) override;
+    virtual bool RemoveValue(const QString& strSection, const QString& strKey) override;
+    virtual bool ClearSection(const QString& strSection) override;
     virtual bool SaveToFile(const QString& strFilePath = "") override;
 
 private:

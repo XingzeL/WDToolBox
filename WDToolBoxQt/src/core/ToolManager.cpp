@@ -425,15 +425,38 @@ bool CToolManager::SaveToConfig(const QString& strConfigPath)
     }
 
     // 将内存中的工具数据写入 ConfigReader
+    // 对于每个分类，先清除旧数据，再写入新数据，确保删除的工具也被移除
     for (const QString& strCategory : m_vecCategoryOrder)
     {
         auto it = m_mapTools.find(strCategory);
         if (it == m_mapTools.end())
+        {
+            // 如果内存中没有该分类，清除配置文件中的该分类
+            m_pConfigReader->ClearSection(strCategory);
             continue;
+        }
 
+        // 先清除该分类下的所有旧键
+        m_pConfigReader->ClearSection(strCategory);
+
+        // 然后写入内存中的所有工具
         for (const ToolInfo& tool : it->second)
         {
             m_pConfigReader->SetValue(strCategory, tool.name, tool.path);
+        }
+    }
+
+    // 处理内存中不存在的分类（从配置文件中删除）
+    std::vector<QString> configSections;
+    if (m_pConfigReader->GetSections(configSections))
+    {
+        for (const QString& strSection : configSections)
+        {
+            // 如果配置文件中存在但内存中不存在的分类，清除它
+            if (m_mapTools.find(strSection) == m_mapTools.end())
+            {
+                m_pConfigReader->ClearSection(strSection);
+            }
         }
     }
 
@@ -445,4 +468,60 @@ bool CToolManager::SaveToConfig(const QString& strConfigPath)
     }
 
     return bResult;
+}
+
+bool CToolManager::RemoveTool(const QString& strCategory, const QString& strName)
+{
+    auto it = m_mapTools.find(strCategory);
+    if (it == m_mapTools.end())
+        return false;
+
+    // 查找并删除指定工具
+    auto& tools = it->second;
+    for (auto toolIt = tools.begin(); toolIt != tools.end(); ++toolIt)
+    {
+        if (toolIt->name == strName)
+        {
+            tools.erase(toolIt);
+            // 通知观察者：工具已删除
+            NotifyObservers(QString("ToolRemoved"), nullptr);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CToolManager::RenameTool(const QString& strCategory, const QString& strOldName, const QString& strNewName)
+{
+    if (strNewName.isEmpty())
+        return false;
+
+    auto it = m_mapTools.find(strCategory);
+    if (it == m_mapTools.end())
+        return false;
+
+    // 查找并重命名指定工具
+    auto& tools = it->second;
+    for (auto& tool : tools)
+    {
+        if (tool.name == strOldName)
+        {
+            // 检查新名称是否已存在（在同一分类中）
+            for (const auto& existingTool : tools)
+            {
+                if (existingTool.name == strNewName && existingTool.name != strOldName)
+                {
+                    return false;  // 新名称已存在
+                }
+            }
+
+            tool.name = strNewName;
+            // 通知观察者：工具已重命名
+            NotifyObservers(QString("ToolRenamed"), nullptr);
+            return true;
+        }
+    }
+
+    return false;
 }

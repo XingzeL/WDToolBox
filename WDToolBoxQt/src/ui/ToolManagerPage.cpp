@@ -1,5 +1,6 @@
 ﻿// ToolManagerPage.cpp: Tool Manager Page implementation
 //
+#pragma execution_character_set("utf-8")
 #include "ToolManagerPage.h"
 #include "../core/ToolManager.h"
 #include "../core/ToolInfo.h"
@@ -11,6 +12,9 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QDir>
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QInputDialog>
 
 CToolManagerPage::CToolManagerPage(QWidget* parent)
     : TabPageBase(parent)
@@ -42,6 +46,10 @@ CToolManagerPage::CToolManagerPage(QWidget* parent)
     // ??????????????????
     m_listTool->setAcceptDrops(true);
     m_listTool->setDragDropMode(QAbstractItemView::DropOnly);
+    // ??????
+    m_listTool->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_listTool, &QListWidget::customContextMenuRequested,
+            this, &CToolManagerPage::onToolContextMenu);
     m_splitter->addWidget(m_listTool);
 
     // Set stretch factors
@@ -118,6 +126,13 @@ void CToolManagerPage::RefreshCategoryList()
     if (m_pToolManager == nullptr || !m_listCategory)
         return;
 
+    QString strCurrentCategory;
+    QListWidgetItem* pCurrentItem = m_listCategory->currentItem();
+    if (pCurrentItem)
+    {
+        strCurrentCategory = pCurrentItem->text();
+    }
+
     m_listCategory->clear();
 
     std::vector<QString> categories;
@@ -128,7 +143,19 @@ void CToolManagerPage::RefreshCategoryList()
         m_listCategory->addItem(category);
     }
 
-    // Select first category
+
+    if (!strCurrentCategory.isEmpty())
+    {
+
+        QList<QListWidgetItem*> items = m_listCategory->findItems(strCurrentCategory, Qt::MatchExactly);
+        if (!items.isEmpty())
+        {
+            m_listCategory->setCurrentItem(items.first());
+            RefreshToolList();
+            return;
+        }
+    }
+
     if (m_listCategory->count() > 0)
     {
         m_listCategory->setCurrentRow(0);
@@ -178,9 +205,122 @@ void CToolManagerPage::onToolDoubleClicked(QListWidgetItem* item)
     m_pToolManager->ExecuteTool(tool);
 }
 
+void CToolManagerPage::onToolContextMenu(const QPoint& pos)
+{
+    if (!m_listTool || !m_pToolManager)
+        return;
+
+    // ??????????????
+    QListWidgetItem* pItem = m_listTool->itemAt(pos);
+    if (!pItem)
+        return;
+
+    // ???????????????????????
+    m_listTool->setCurrentItem(pItem);
+
+    // ??????
+    QMenu menu(this);
+    QAction* pRenameAction = menu.addAction("重命名");
+    QAction* pRemoveAction = menu.addAction("移除");
+
+    // ???????????
+    QAction* pSelectedAction = menu.exec(m_listTool->mapToGlobal(pos));
+
+    if (pSelectedAction == pRemoveAction)
+    {
+        onRemoveTool();
+    }
+    else if (pSelectedAction == pRenameAction)
+    {
+        onRenameTool();
+    }
+}
+
+void CToolManagerPage::onRemoveTool()
+{
+    if (!m_pToolManager || !m_listTool || !m_listCategory)
+        return;
+
+    QListWidgetItem* pToolItem = m_listTool->currentItem();
+    if (!pToolItem)
+        return;
+
+    QListWidgetItem* pCategoryItem = m_listCategory->currentItem();
+    if (!pCategoryItem)
+        return;
+
+    QString strCategory = pCategoryItem->text();
+    ToolInfo tool = pToolItem->data(Qt::UserRole).value<ToolInfo>();
+
+    int nRet = QMessageBox::question(this, "确认删除",
+                                     QString("确定要删除工具 \"%1\" 吗？").arg(tool.name),
+                                     QMessageBox::Yes | QMessageBox::No,
+                                     QMessageBox::No);
+    if (nRet != QMessageBox::Yes)
+        return;
+
+    if (m_pToolManager->RemoveTool(strCategory, tool.name))
+    {
+        if (m_pToolManager->SaveToConfig())
+        {
+            RefreshToolList();
+        }
+        else
+        {
+            QMessageBox::warning(this, "警告", "工具已删除，但保存配置文件失败！");
+        }
+    }
+    else
+    {
+        QMessageBox::warning(this, "错误", "删除工具失败!");
+    }
+}
+
+void CToolManagerPage::onRenameTool()
+{
+    if (!m_pToolManager || !m_listTool || !m_listCategory)
+        return;
+
+    QListWidgetItem* pToolItem = m_listTool->currentItem();
+    if (!pToolItem)
+        return;
+
+    QListWidgetItem* pCategoryItem = m_listCategory->currentItem();
+    if (!pCategoryItem)
+        return;
+
+    QString strCategory = pCategoryItem->text();
+    ToolInfo tool = pToolItem->data(Qt::UserRole).value<ToolInfo>();
+
+    bool bOk = false;
+    QString strNewName = QInputDialog::getText(this, "重命名工具",
+                                               "请输入新名称：",
+                                               QLineEdit::Normal,
+                                               tool.name,
+                                               &bOk);
+
+    if (!bOk || strNewName.isEmpty() || strNewName == tool.name)
+        return;
+
+    if (m_pToolManager->RenameTool(strCategory, tool.name, strNewName))
+    {
+        if (m_pToolManager->SaveToConfig())
+        {
+            RefreshToolList();
+        }
+        else
+        {
+            QMessageBox::warning(this, "警告", "工具已重命名，但保存配置文件失败！");
+        }
+    }
+    else
+    {
+        QMessageBox::warning(this, "错误", QString("重命名失败！可能是名称 \"%1\" 已存在。").arg(strNewName));
+    }
+}
+
 void CToolManagerPage::dragEnterEvent(QDragEnterEvent* event)
 {
-    // ??????????????
     if (event->mimeData()->hasUrls())
     {
         event->acceptProposedAction();
@@ -202,7 +342,7 @@ void CToolManagerPage::dropEvent(QDropEvent* event)
     QListWidgetItem* pCurrentCategoryItem = m_listCategory->currentItem();
     if (!pCurrentCategoryItem)
     {
-        QMessageBox::warning(this, "??", "?????????");
+        QMessageBox::warning(this, "警告", "请先选择一个分类！");
         event->ignore();
         return;
     }
@@ -284,22 +424,15 @@ void CToolManagerPage::dropEvent(QDropEvent* event)
 
     if (nAddedCount > 0 && nFailedCount == 0)
     {
-        if (nAddedCount == 1)
-        {
-            //QMessageBox::information(this, "成功", QString("已添加 1 个工具到分类 \"%1\"").arg(strCategory));
-        }
-        else
-        {
-            //QMessageBox::information(this, "成功", QString("已添加 %1 个工具到分类 \"%2\"").arg(nAddedCount).arg(strCategory));
-        }
+
     }
     else if (nAddedCount > 0 && nFailedCount > 0)
     {
-        QMessageBox::warning(this, "部分成功", QString("成功添加 %1 个工具，%2 个失败").arg(nAddedCount).arg(nFailedCount));
+        QMessageBox::warning(this, "警告", QString("成功添加 %1 个工具，%2 个失败").arg(nAddedCount).arg(nFailedCount));
     }
     else if (nAddedCount == 0)
     {
-        QMessageBox::warning(this, "失败", "未能添加任何工具，请检查文件路径是否正确。");
+        QMessageBox::warning(this, "警告", "未能添加任何工具，请检查文件路径是否正确。");
     }
 
     event->acceptProposedAction();

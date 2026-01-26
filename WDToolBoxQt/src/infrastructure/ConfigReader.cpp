@@ -283,6 +283,36 @@ bool CIniConfigReader::SetValue(const QString& strSection, const QString& strKey
     return true;
 }
 
+bool CIniConfigReader::RemoveValue(const QString& strSection, const QString& strKey)
+{
+    if (strSection.isEmpty() || strKey.isEmpty())
+        return false;
+
+    auto itSection = m_mapConfig.find(strSection);
+    if (itSection == m_mapConfig.end())
+        return false;
+
+    auto itKey = itSection->second.find(strKey);
+    if (itKey == itSection->second.end())
+        return false;
+
+    itSection->second.erase(itKey);
+    return true;
+}
+
+bool CIniConfigReader::ClearSection(const QString& strSection)
+{
+    if (strSection.isEmpty())
+        return false;
+
+    auto itSection = m_mapConfig.find(strSection);
+    if (itSection == m_mapConfig.end())
+        return false;
+
+    itSection->second.clear();
+    return true;
+}
+
 bool CIniConfigReader::SaveToFile(const QString& strFilePath)
 {
     QString strSavePath = strFilePath;

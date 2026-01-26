@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "TabPageBase.h"
 #include "../infrastructure/Observer.h"
 #include <QListWidget>
@@ -8,6 +8,9 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QInputDialog>
 
 // Forward declaration
 class CToolManager;
@@ -51,6 +54,9 @@ protected:
 private slots:
     void onCategorySelectionChanged();
     void onToolDoubleClicked(QListWidgetItem* item);
+    void onToolContextMenu(const QPoint& pos);
+    void onRemoveTool();
+    void onRenameTool();
 
 private:
     // Member variables

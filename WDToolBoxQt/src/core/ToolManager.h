@@ -61,6 +61,12 @@ public:
     // 保存工具配置到文件
     bool SaveToConfig(const QString& strConfigPath = "");
 
+    // 删除工具
+    bool RemoveTool(const QString& strCategory, const QString& strName);
+
+    // 重命名工具
+    bool RenameTool(const QString& strCategory, const QString& strOldName, const QString& strNewName);
+
 private:
     IConfigReader* m_pConfigReader;  // 配置读取器（依赖注入）
     bool m_bOwnConfigReader;         // 是否拥有 ConfigReader 的所有权
