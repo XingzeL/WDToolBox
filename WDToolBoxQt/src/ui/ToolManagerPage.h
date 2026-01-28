@@ -57,6 +57,7 @@ private slots:
     void onToolContextMenu(const QPoint& pos);
     void onRemoveTool();
     void onRenameTool();
+    void onGetFullPath(QListWidgetItem* pItem);
 
 private:
     // Member variables

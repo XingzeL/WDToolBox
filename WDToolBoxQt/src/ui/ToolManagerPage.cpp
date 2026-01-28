@@ -14,7 +14,9 @@
 #include <QDir>
 #include <QContextMenuEvent>
 #include <QMenu>
+#include <QApplication>
 #include <QInputDialog>
+#include <QClipboard>
 
 CToolManagerPage::CToolManagerPage(QWidget* parent)
     : TabPageBase(parent)
@@ -62,7 +64,6 @@ CToolManagerPage::CToolManagerPage(QWidget* parent)
     connect(m_listTool, &QListWidget::itemDoubleClicked,
             this, &CToolManagerPage::onToolDoubleClicked);
 
-    // ????????????????????????
     setAcceptDrops(true);
 }
 
@@ -210,21 +211,21 @@ void CToolManagerPage::onToolContextMenu(const QPoint& pos)
     if (!m_listTool || !m_pToolManager)
         return;
 
-    // ??????????????
     QListWidgetItem* pItem = m_listTool->itemAt(pos);
     if (!pItem)
         return;
 
-    // ???????????????????????
     m_listTool->setCurrentItem(pItem);
 
-    // ??????
     QMenu menu(this);
     QAction* pRenameAction = menu.addAction("重命名");
     QAction* pRemoveAction = menu.addAction("移除");
+    QAction* pGetFullPathAction = menu.addAction("获取路径");
 
-    // ???????????
     QAction* pSelectedAction = menu.exec(m_listTool->mapToGlobal(pos));
+
+    if (!pSelectedAction)
+        return;
 
     if (pSelectedAction == pRemoveAction)
     {
@@ -233,6 +234,10 @@ void CToolManagerPage::onToolContextMenu(const QPoint& pos)
     else if (pSelectedAction == pRenameAction)
     {
         onRenameTool();
+    }
+    else if (pSelectedAction == pGetFullPathAction)
+    {
+        onGetFullPath(pItem);
     }
 }
 
@@ -274,6 +279,18 @@ void CToolManagerPage::onRemoveTool()
     {
         QMessageBox::warning(this, "错误", "删除工具失败!");
     }
+}
+
+void CToolManagerPage::onGetFullPath(QListWidgetItem* pItem)
+{
+    // TODO: 实现获取工具的完整路径
+    if (!m_pToolManager || !pItem)
+        return;
+    ToolInfo tool = pItem->data(Qt::UserRole).value<ToolInfo>();
+    QString strFullPath = tool.path;
+    // 将路径内容复制到剪贴板
+    QApplication::clipboard()->setText(strFullPath);
+    QMessageBox::information(this, "提示", QString("工具路径已复制到剪贴板：%1").arg(strFullPath));
 }
 
 void CToolManagerPage::onRenameTool()

@@ -34,6 +34,16 @@ bool CProcessLauncher::LaunchTool(const QString& strPath)
         return QDesktopServices::openUrl(QUrl::fromLocalFile(QDir::toNativeSeparators(strPath)));
     }
 
+    if (strPathLower.endsWith(".ini"))
+    {
+        // 检查是否是ini文件，如果是则打开记事本
+        if (fileInfo.exists() && fileInfo.isFile())
+        {
+            return QDesktopServices::openUrl(QUrl::fromLocalFile(QDir::toNativeSeparators(strPath)));
+        }
+        return false;
+    }
+
 #ifdef Q_OS_WIN
     // Windows 特定处理
     // 特殊处理 .cpl 文件（控制面板文件）
