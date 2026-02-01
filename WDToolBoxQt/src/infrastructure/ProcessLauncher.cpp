@@ -8,40 +8,32 @@
 // 启动工具
 bool CProcessLauncher::LaunchTool(const QString& strPath)
 {
-    if (strPath.isEmpty())
+    QString strTrimmed = strPath.trimmed();
+    if (strTrimmed.isEmpty())
         return false;
 
-    QString strPathLower = strPath.toLower();
+    QString strPathLower = strTrimmed.toLower();
 
     // 检查是否是URL（http://或https://开头）
     bool bIsURL = strPathLower.startsWith("http://") || strPathLower.startsWith("https://");
 
-    // 检查是否是HTML文件
-    bool bIsHTML = strPathLower.endsWith(".html") || strPathLower.endsWith(".htm");
-
-    // 特殊处理 URL 和 HTML 文件（跨平台）
-    if (bIsURL || bIsHTML)
+    // URL：使用默认浏览器打开
+    if (bIsURL)
     {
-        // 直接使用默认浏览器打开
-        return QDesktopServices::openUrl(QUrl(strPath));
+        return QDesktopServices::openUrl(QUrl(strTrimmed));
     }
 
-    // 检查是否是文件夹路径（跨平台）
-    QFileInfo fileInfo(strPath);
-    if (fileInfo.exists() && fileInfo.isDir())
+    // 优先走系统“文件关联打开”（Windows 类似 ShellExecute("open")）
+    // - 文件：用默认关联程序打开（.ini/.html/.txt/.pdf/... 都可）
+    // - 文件夹：用资源管理器打开
+    QFileInfo fileInfo(strTrimmed);
+    if (fileInfo.exists())
     {
-        // 使用 QDesktopServices 打开文件夹（跨平台）
-        return QDesktopServices::openUrl(QUrl::fromLocalFile(QDir::toNativeSeparators(strPath)));
-    }
-
-    if (strPathLower.endsWith(".ini"))
-    {
-        // 检查是否是ini文件，如果是则打开记事本
-        if (fileInfo.exists() && fileInfo.isFile())
+        const QString strAbsPath = fileInfo.absoluteFilePath();
+        if (QDesktopServices::openUrl(QUrl::fromLocalFile(strAbsPath)))
         {
-            return QDesktopServices::openUrl(QUrl::fromLocalFile(QDir::toNativeSeparators(strPath)));
+            return true;
         }
-        return false;
     }
 
 #ifdef Q_OS_WIN
@@ -52,7 +44,7 @@ bool CProcessLauncher::LaunchTool(const QString& strPath)
         // 使用 control.exe 启动控制面板文件
         QString strControlPath = "control.exe";
         QStringList arguments;
-        arguments << strPath;
+        arguments << strTrimmed;
 
         // 检查 control.exe 是否存在（通常在 System32 目录）
         QString strSystem32 = QDir::toNativeSeparators("C:/Windows/System32/control.exe");
@@ -72,7 +64,7 @@ bool CProcessLauncher::LaunchTool(const QString& strPath)
         // 使用 mmc.exe 启动 MMC 管理单元
         QString strMmcPath = "mmc.exe";
         QStringList arguments;
-        arguments << strPath;
+        arguments << strTrimmed;
 
         // 检查 mmc.exe 是否存在（通常在 System32 目录）
         QString strSystem32 = QDir::toNativeSeparators("C:/Windows/System32/mmc.exe");
@@ -88,19 +80,15 @@ bool CProcessLauncher::LaunchTool(const QString& strPath)
     }
 #endif
 
-    // 通用处理：启动普通程序（跨平台）
-    // 对于绝对路径，检查文件是否存在
-    // 对于相对路径或命令名，让QProcess通过PATH查找
-    if (QFileInfo(strPath).isAbsolute())
+    // 如果走到这里：
+    // - 可能是“命令名/相对路径”（例如 notepad、cmd、python 等）
+    // - 或者是不存在的绝对路径
+    if (QFileInfo(strTrimmed).isAbsolute())
     {
-        // 绝对路径：检查文件是否存在
-        if (!QFileInfo::exists(strPath))
-        {
-            return false;
-        }
+        // 绝对路径但不存在：直接失败
+        return false;
     }
-    // 相对路径或命令名：直接尝试启动（QProcess会通过PATH查找）
 
-    // 启动程序（跨平台）
-    return QProcess::startDetached(strPath);
+    // 相对路径或命令名：让 QProcess 通过 PATH 查找并启动
+    return QProcess::startDetached(strTrimmed);
 }
