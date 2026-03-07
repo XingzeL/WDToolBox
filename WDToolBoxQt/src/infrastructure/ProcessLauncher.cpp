@@ -4,6 +4,11 @@
 #include <QUrl>
 #include <QFileInfo>
 #include <QDir>
+#ifdef Q_OS_WIN
+#include <Windows.h>
+#include <Shellapi.h>
+#include <string>
+#endif
 
 // 启动工具
 bool CProcessLauncher::LaunchTool(const QString& strPath)
@@ -23,17 +28,21 @@ bool CProcessLauncher::LaunchTool(const QString& strPath)
         return QDesktopServices::openUrl(QUrl(strTrimmed));
     }
 
-    // 优先走系统“文件关联打开”（Windows 类似 ShellExecute("open")）
-    // - 文件：用默认关联程序打开（.ini/.html/.txt/.pdf/... 都可）
-    // - 文件夹：用资源管理器打开
+    // 本地文件/文件夹：用系统默认关联打开（jpg、txt、pdf、文件夹等通用）
     QFileInfo fileInfo(strTrimmed);
     if (fileInfo.exists())
     {
         const QString strAbsPath = fileInfo.absoluteFilePath();
-        if (QDesktopServices::openUrl(QUrl::fromLocalFile(strAbsPath)))
-        {
+#ifdef Q_OS_WIN
+        // Windows：用 ShellExecute("open") 通用打开，与 MFC 行为一致
+        const std::wstring wpath = QDir::toNativeSeparators(strAbsPath).toStdWString();
+        const HINSTANCE ret = ShellExecuteW(nullptr, L"open", wpath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+        if (reinterpret_cast<INT_PTR>(ret) > 32)
             return true;
-        }
+        // 失败时再尝试 Qt 方式
+#endif
+        if (QDesktopServices::openUrl(QUrl::fromLocalFile(strAbsPath)))
+            return true;
     }
 
 #ifdef Q_OS_WIN
