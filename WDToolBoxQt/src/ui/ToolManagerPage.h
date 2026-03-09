@@ -49,7 +49,7 @@ public:
     void RefreshToolList();
 
 protected:
-    // ??????
+    // 拖拽相关事件
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
 

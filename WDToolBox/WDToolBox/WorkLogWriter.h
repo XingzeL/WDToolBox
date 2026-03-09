@@ -6,7 +6,7 @@ struct WorkLogEntry
 {
 	CString content;
 	time_t time;
-}; //±???
+}; //工作日志条目
 
 class CWorkLogWriter : public CExecutor
 {

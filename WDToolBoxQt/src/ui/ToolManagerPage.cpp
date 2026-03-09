@@ -48,10 +48,10 @@ CToolManagerPage::CToolManagerPage(QWidget* parent)
     m_listTool->setViewMode(QListWidget::IconMode);
     m_listTool->setResizeMode(QListWidget::Adjust);
     m_listTool->setSpacing(10);
-    // ??????????????????
+    // 允许拖拽文件到工具列表
     m_listTool->setAcceptDrops(true);
     m_listTool->setDragDropMode(QAbstractItemView::DropOnly);
-    // ??????
+    // 启用右键菜单
     m_listTool->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_listTool, &QListWidget::customContextMenuRequested,
             this, &CToolManagerPage::onToolContextMenu);
