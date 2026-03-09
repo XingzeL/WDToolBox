@@ -1,4 +1,4 @@
-// WorkLogPage.cpp: 工作日志页面实现
+﻿// WorkLogPage.cpp: 工作日志页面实现
 //
 #include "WorkLogPage.h"
 #include "../core/WorkLogManager.h"

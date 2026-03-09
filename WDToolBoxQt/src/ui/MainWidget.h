@@ -1,5 +1,4 @@
-// MainWidget.h: 主窗口
-//
+// MainWidget.h
 #pragma once
 
 #include <QWidget>
@@ -12,7 +11,7 @@
 #include "ToolManagerPage.h"
 #include "WorkLogPage.h"
 
-// 主窗口类
+// main window
 class MainWidget : public QWidget
 {
     Q_OBJECT
@@ -35,24 +34,18 @@ private:
     void LoadLogCategories();
     void StartConfigFileWatcher();
 
-    // 分页控件
-    QTabWidget* m_tabCtrl;          // 标签页控件
+    QTabWidget* m_tabCtrl;
 
-    // 分页对象（每个分页封装自己的控件和逻辑）
-    CToolManagerPage* m_toolManagerPage;  // 工具管理器分页
-    CWorkLogPage* m_workLogPage;           // 工作日志分页
+    CToolManagerPage* m_toolManagerPage;
+    CWorkLogPage*     m_workLogPage;
 
-    // 配置读取器（统一管理）
-    CIniConfigReader* m_toolConfigReader;    // 工具配置读取器
-    CIniConfigReader* m_logConfigReader;     // 日志配置读取器
+    CIniConfigReader* m_toolConfigReader;
+    CIniConfigReader* m_logConfigReader;
 
-    // 管理器（使用依赖注入，内部管理 Executor）
-    CToolManager* m_toolManager;
-    CWorkLogManager* m_workLogger;
+    CToolManager*     m_toolManager;
+    CWorkLogManager*  m_workLogger;
 
-    // 配置文件监控器
     CConfigFileWatcher* m_configWatcher;
 
-    // 布局参数
-    int m_nCategoryListWidth;    // 左侧分类列表宽度（可调整）
+    int m_nCategoryListWidth;
 };
