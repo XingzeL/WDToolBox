@@ -14,6 +14,16 @@
 #include <QApplication>
 #include <QDir>
 #include <QDebug>
+#include <QUrl>
+
+static const QString kToolHighlightSection = QString("__ToolHighlight");
+
+static QString MakeHighlightKey(const QString& strCategory, const QString& strToolName)
+{
+    const QString strEncodedCategory = QString::fromUtf8(QUrl::toPercentEncoding(strCategory));
+    const QString strEncodedName = QString::fromUtf8(QUrl::toPercentEncoding(strToolName));
+    return strEncodedCategory + QString("||") + strEncodedName;
+}
 
 CToolManager::CToolManager(IConfigReader* pConfigReader, CExecutor* pExecutor)
     : m_pConfigReader(pConfigReader)
@@ -55,12 +65,13 @@ CToolManager::~CToolManager()
     }
 }
 
-void CToolManager::AddTool(const QString& strCategory, const QString& strName, const QString& strPath, bool bNotify)
+void CToolManager::AddTool(const QString& strCategory, const QString& strName, const QString& strPath, bool bNotify, bool bHighlighted)
 {
     ToolInfo tool;
     tool.name = strName;
     tool.path = strPath;
     tool.category = strCategory;
+    tool.highlighted = bHighlighted;
 
     // 如果是新分类，记录到顺序列表中
     bool bNewCategory = (m_mapTools.find(strCategory) == m_mapTools.end());
@@ -287,6 +298,11 @@ bool CToolManager::LoadFromConfig(const QString& strConfigPath)
     // 遍历每个分类，加载工具
     for (const QString& strCategory : vecSections)
     {
+        if (strCategory == kToolHighlightSection)
+        {
+            continue;
+        }
+
         // 获取该分类下的所有键（工具名称）
         std::vector<QString> vecKeys;
         qDebug() << "strCategory: " << strCategory;
@@ -313,7 +329,11 @@ bool CToolManager::LoadFromConfig(const QString& strConfigPath)
                     }
 
                     // 添加工具（批量加载时不通知，最后统一通知）
-                    AddTool(strCategory, strToolName, strToolPath, false);
+                    const QString strHighlightKey = MakeHighlightKey(strCategory, strToolName);
+                    const QString strHighlightValue = m_pConfigReader->GetValue(kToolHighlightSection, strHighlightKey, "0");
+                    const bool bHighlighted = (strHighlightValue == "1");
+
+                    AddTool(strCategory, strToolName, strToolPath, false, bHighlighted);
                 }
             }
         }
@@ -428,6 +448,11 @@ bool CToolManager::SaveToConfig(const QString& strConfigPath)
     // 对于每个分类，先清除旧数据，再写入新数据，确保删除的工具也被移除
     for (const QString& strCategory : m_vecCategoryOrder)
     {
+        if (strCategory == kToolHighlightSection)
+        {
+            continue;
+        }
+
         auto it = m_mapTools.find(strCategory);
         if (it == m_mapTools.end())
         {
@@ -446,6 +471,24 @@ bool CToolManager::SaveToConfig(const QString& strConfigPath)
         }
     }
 
+    // 写入高亮状态到专用节，避免污染工具分组
+    m_pConfigReader->ClearSection(kToolHighlightSection);
+    for (const QString& strCategory : m_vecCategoryOrder)
+    {
+        auto it = m_mapTools.find(strCategory);
+        if (it == m_mapTools.end())
+            continue;
+
+        for (const ToolInfo& tool : it->second)
+        {
+            if (!tool.highlighted)
+                continue;
+
+            const QString strHighlightKey = MakeHighlightKey(strCategory, tool.name);
+            m_pConfigReader->SetValue(kToolHighlightSection, strHighlightKey, "1");
+        }
+    }
+
     // 处理内存中不存在的分类（从配置文件中删除）
     std::vector<QString> configSections;
     if (m_pConfigReader->GetSections(configSections))
@@ -453,6 +496,11 @@ bool CToolManager::SaveToConfig(const QString& strConfigPath)
         for (const QString& strSection : configSections)
         {
             // 如果配置文件中存在但内存中不存在的分类，清除它
+            if (strSection == kToolHighlightSection)
+            {
+                continue;
+            }
+
             if (m_mapTools.find(strSection) == m_mapTools.end())
             {
                 m_pConfigReader->ClearSection(strSection);
@@ -519,6 +567,26 @@ bool CToolManager::RenameTool(const QString& strCategory, const QString& strOldN
             tool.name = strNewName;
             // 通知观察者：工具已重命名
             NotifyObservers(QString("ToolRenamed"), nullptr);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CToolManager::SetToolHighlighted(const QString& strCategory, const QString& strName, bool bHighlighted)
+{
+    auto it = m_mapTools.find(strCategory);
+    if (it == m_mapTools.end())
+        return false;
+
+    auto& tools = it->second;
+    for (auto& tool : tools)
+    {
+        if (tool.name == strName)
+        {
+            tool.highlighted = bHighlighted;
+            NotifyObservers(QString("ToolHighlightChanged"), nullptr);
             return true;
         }
     }

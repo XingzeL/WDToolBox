@@ -13,9 +13,11 @@ struct ToolInfo
     QString category;  // ????
     QIcon icon;        // ????
     int iconIndex;     // ???????????????
+    bool highlighted;  // 是否高亮显示
 
     ToolInfo()
         : iconIndex(-1)
+        , highlighted(false)
     {
     }
 };

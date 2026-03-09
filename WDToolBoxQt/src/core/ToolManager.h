@@ -23,7 +23,7 @@ public:
 
     // 添加工具
     // bNotify: 是否立即通知观察者（批量加载时设为 false，最后统一通知）
-    void AddTool(const QString& strCategory, const QString& strName, const QString& strPath, bool bNotify = true);
+    void AddTool(const QString& strCategory, const QString& strName, const QString& strPath, bool bNotify = true, bool bHighlighted = false);
 
     // 获取指定分类的所有工具
     // 返回 true 表示分类存在，false 表示分类不存在
@@ -66,6 +66,9 @@ public:
 
     // 重命名工具
     bool RenameTool(const QString& strCategory, const QString& strOldName, const QString& strNewName);
+
+    // 设置工具高亮状态
+    bool SetToolHighlighted(const QString& strCategory, const QString& strName, bool bHighlighted);
 
 private:
     IConfigReader* m_pConfigReader;  // 配置读取器（依赖注入）

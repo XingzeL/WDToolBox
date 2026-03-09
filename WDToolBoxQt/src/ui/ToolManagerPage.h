@@ -1,6 +1,7 @@
 #pragma once
 #include "TabPageBase.h"
 #include "../infrastructure/Observer.h"
+#include "../core/ToolInfo.h"
 #include <QListWidget>
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -11,6 +12,7 @@
 #include <QContextMenuEvent>
 #include <QMenu>
 #include <QInputDialog>
+#include <QColor>
 
 // Forward declaration
 class CToolManager;
@@ -58,8 +60,12 @@ private slots:
     void onRemoveTool();
     void onRenameTool();
     void onGetFullPath(QListWidgetItem* pItem);
+    void onOpenInExplorer(QListWidgetItem* pItem);
+    void onToggleHighlight(QListWidgetItem* pItem);
 
 private:
+    void applyHighlightVisual(QListWidgetItem* pItem, const ToolInfo& tool);
+
     // Member variables
     QListWidget* m_listCategory;    // Category list (left side)
     QListWidget* m_listTool;        // Tool list (right side, icon mode)

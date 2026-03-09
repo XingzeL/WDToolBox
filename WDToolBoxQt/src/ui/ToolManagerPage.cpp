@@ -17,6 +17,9 @@
 #include <QApplication>
 #include <QInputDialog>
 #include <QClipboard>
+#include <QDesktopServices>
+#include <QBrush>
+#include <QFont>
 
 CToolManagerPage::CToolManagerPage(QWidget* parent)
     : TabPageBase(parent)
@@ -188,6 +191,7 @@ void CToolManagerPage::RefreshToolList()
         {
             QListWidgetItem* pItem = new QListWidgetItem(tool.icon, tool.name, m_listTool);
             pItem->setData(Qt::UserRole, QVariant::fromValue(tool));
+            applyHighlightVisual(pItem, tool);
         }
     }
 }
@@ -218,9 +222,12 @@ void CToolManagerPage::onToolContextMenu(const QPoint& pos)
     m_listTool->setCurrentItem(pItem);
 
     QMenu menu(this);
+    ToolInfo tool = pItem->data(Qt::UserRole).value<ToolInfo>();
     QAction* pRenameAction = menu.addAction("重命名");
     QAction* pRemoveAction = menu.addAction("移除");
     QAction* pGetFullPathAction = menu.addAction("获取路径");
+    QAction* pOpenInExplorerAction = menu.addAction("在资源管理器中打开");
+    QAction* pToggleHighlightAction = menu.addAction(tool.highlighted ? "取消高亮" : "高亮");
 
     QAction* pSelectedAction = menu.exec(m_listTool->mapToGlobal(pos));
 
@@ -238,6 +245,14 @@ void CToolManagerPage::onToolContextMenu(const QPoint& pos)
     else if (pSelectedAction == pGetFullPathAction)
     {
         onGetFullPath(pItem);
+    }
+    else if (pSelectedAction == pOpenInExplorerAction)
+    {
+        onOpenInExplorer(pItem);
+    }
+    else if (pSelectedAction == pToggleHighlightAction)
+    {
+        onToggleHighlight(pItem);
     }
 }
 
@@ -291,6 +306,85 @@ void CToolManagerPage::onGetFullPath(QListWidgetItem* pItem)
     // 将路径内容复制到剪贴板
     QApplication::clipboard()->setText(strFullPath);
     QMessageBox::information(this, "提示", QString("工具路径已复制到剪贴板：%1").arg(strFullPath));
+}
+
+void CToolManagerPage::onOpenInExplorer(QListWidgetItem* pItem)
+{
+    if (!pItem)
+        return;
+
+    ToolInfo tool = pItem->data(Qt::UserRole).value<ToolInfo>();
+    QString strPath = tool.path.trimmed();
+    if (strPath.isEmpty())
+    {
+        QMessageBox::warning(this, "警告", "工具路径为空，无法打开所在文件夹。");
+        return;
+    }
+
+    QFileInfo fileInfo(strPath);
+    QString strFolderPath = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.absolutePath();
+    if (strFolderPath.isEmpty() || !QFileInfo::exists(strFolderPath))
+    {
+        QMessageBox::warning(this, "警告", QString("所在文件夹不存在：%1").arg(strFolderPath));
+        return;
+    }
+
+    const bool bOpened = QDesktopServices::openUrl(QUrl::fromLocalFile(strFolderPath));
+    if (!bOpened)
+    {
+        QMessageBox::warning(this, "错误", QString("无法打开文件夹：%1").arg(strFolderPath));
+    }
+}
+
+void CToolManagerPage::onToggleHighlight(QListWidgetItem* pItem)
+{
+    if (!m_pToolManager || !m_listCategory || !pItem)
+        return;
+
+    QListWidgetItem* pCategoryItem = m_listCategory->currentItem();
+    if (!pCategoryItem)
+        return;
+
+    QString strCategory = pCategoryItem->text();
+    ToolInfo tool = pItem->data(Qt::UserRole).value<ToolInfo>();
+    const bool bNewHighlighted = !tool.highlighted;
+
+    if (!m_pToolManager->SetToolHighlighted(strCategory, tool.name, bNewHighlighted))
+    {
+        QMessageBox::warning(this, "错误", "更新高亮状态失败。");
+        return;
+    }
+
+    if (!m_pToolManager->SaveToConfig())
+    {
+        QMessageBox::warning(this, "警告", "高亮状态已更新，但保存配置文件失败！");
+    }
+
+    tool.highlighted = bNewHighlighted;
+    pItem->setData(Qt::UserRole, QVariant::fromValue(tool));
+    applyHighlightVisual(pItem, tool);
+}
+
+void CToolManagerPage::applyHighlightVisual(QListWidgetItem* pItem, const ToolInfo& tool)
+{
+    if (!pItem)
+        return;
+
+    QFont font = pItem->font();
+    if (tool.highlighted)
+    {
+        font.setBold(true);
+        pItem->setFont(font);
+        pItem->setBackground(QBrush(QColor(255, 245, 170)));
+        pItem->setForeground(QBrush(QColor(80, 60, 0)));
+    }
+    else
+    {
+        font.setBold(false);
+        pItem->setFont(font);
+        pItem->setData(Qt::BackgroundRole, QVariant());
+        pItem->setData(Qt::ForegroundRole, QVariant());
+    }
 }
 
 void CToolManagerPage::onRenameTool()
