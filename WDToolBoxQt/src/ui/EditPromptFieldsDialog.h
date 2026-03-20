@@ -16,6 +16,10 @@ public:
     void setPreset(const PromptRolePreset& preset);
 
     PromptRolePreset fields() const;
+    bool saveToConfigRequested() const { return m_bSaveToConfigRequested; }
+
+private slots:
+    void onSaveToConfigClicked();
 
 private:
     QTextEdit* m_editRole;
@@ -24,4 +28,5 @@ private:
     QTextEdit* m_editConstraints;
     QTextEdit* m_editOutputFormat;
     QTextEdit* m_editAcceptanceCriteria;
+    bool       m_bSaveToConfigRequested;
 };

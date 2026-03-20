@@ -2,6 +2,7 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>
+#include <QPushButton>
 #include <QTextEdit>
 #include <QVBoxLayout>
 
@@ -13,6 +14,7 @@ CEditPromptFieldsDialog::CEditPromptFieldsDialog(QWidget* parent)
     , m_editConstraints(nullptr)
     , m_editOutputFormat(nullptr)
     , m_editAcceptanceCriteria(nullptr)
+    , m_bSaveToConfigRequested(false)
 {
     setWindowTitle(tr("Edit prompt fields"));
     setMinimumSize(520, 560);
@@ -42,8 +44,11 @@ CEditPromptFieldsDialog::CEditPromptFieldsDialog(QWidget* parent)
 
     QDialogButtonBox* buttons = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+    QPushButton* btnSaveToConfig = buttons->addButton(
+        QString::fromUtf8(u8"\u66f4\u65b0\u5230\u914d\u7f6e"), QDialogButtonBox::ActionRole);
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(btnSaveToConfig, &QPushButton::clicked, this, &CEditPromptFieldsDialog::onSaveToConfigClicked);
 
     QVBoxLayout* main = new QVBoxLayout(this);
     main->addLayout(form);
@@ -52,6 +57,7 @@ CEditPromptFieldsDialog::CEditPromptFieldsDialog(QWidget* parent)
 
 void CEditPromptFieldsDialog::setPreset(const PromptRolePreset& preset)
 {
+    m_bSaveToConfigRequested = false;
     m_editRole->setPlainText(preset.role);
     m_editContext->setPlainText(preset.context);
     m_editTask->setPlainText(preset.task);
@@ -70,4 +76,10 @@ PromptRolePreset CEditPromptFieldsDialog::fields() const
     p.outputFormat = m_editOutputFormat->toPlainText();
     p.acceptanceCriteria = m_editAcceptanceCriteria->toPlainText();
     return p;
+}
+
+void CEditPromptFieldsDialog::onSaveToConfigClicked()
+{
+    m_bSaveToConfigRequested = true;
+    accept();
 }

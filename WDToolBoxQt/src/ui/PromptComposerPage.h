@@ -5,6 +5,7 @@
 #include <QListWidget>
 #include <QSplitter>
 #include <QHBoxLayout>
+#include <QVector>
 
 class QTextEdit;
 class QPushButton;
@@ -27,11 +28,15 @@ private slots:
     void onCopyClicked();
 
 private:
+    void loadPresets();
+    void rebuildPresetList();
+
     static QString buildFormattedPrompt(const PromptRolePreset& p);
 
     QListWidget* m_listPresets;
     QTextEdit*   m_textPreview;
     QPushButton* m_btnCopy;
     QSplitter*   m_splitter;
+    QVector<PromptRolePreset> m_presets;
     int          m_nLeftWidth;
 };
