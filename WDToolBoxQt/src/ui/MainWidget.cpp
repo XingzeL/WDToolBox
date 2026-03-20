@@ -21,6 +21,8 @@ MainWidget::MainWidget(QWidget* parent)
     , m_tabCtrl(nullptr)
     , m_toolManagerPage(nullptr)
     , m_workLogPage(nullptr)
+    , m_promptComposerPage(nullptr)
+    , m_notebookPage(nullptr)
     , m_toolConfigReader(nullptr)
     , m_logConfigReader(nullptr)
     , m_toolManager(nullptr)
@@ -90,10 +92,14 @@ void MainWidget::InitializeControls()
     // 创建分页对象
     m_toolManagerPage = new CToolManagerPage();
     m_workLogPage = new CWorkLogPage();
+    m_promptComposerPage = new CPromptComposerPage();
+    m_notebookPage = new CNotebookPage();
 
     // 添加分页到标签页
     m_tabCtrl->addTab(m_toolManagerPage, "工具管理器");
     m_tabCtrl->addTab(m_workLogPage, "工作日志");
+    m_tabCtrl->addTab(m_promptComposerPage, "提示词构造");
+    m_tabCtrl->addTab(m_notebookPage, "笔记草稿");
 
     // 设置 Manager 指针（用于观察者模式）
     m_toolManagerPage->SetToolManager(m_toolManager);
@@ -191,7 +197,24 @@ void MainWidget::resizeEvent(QResizeEvent* event)
         {
             m_workLogPage->updateLayout(m_nCategoryListWidth);
         }
+        if (m_promptComposerPage)
+        {
+            m_promptComposerPage->updateLayout(m_nCategoryListWidth);
+        }
+        if (m_notebookPage)
+        {
+            m_notebookPage->updateLayout(m_nCategoryListWidth);
+        }
     }
+}
+
+void MainWidget::closeEvent(QCloseEvent* event)
+{
+    if (m_notebookPage)
+    {
+        m_notebookPage->saveToTimestampedFile();
+    }
+    QWidget::closeEvent(event);
 }
 
 void MainWidget::onTabChanged(int index)

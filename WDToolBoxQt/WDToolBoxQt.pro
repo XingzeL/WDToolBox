@@ -42,6 +42,9 @@ HEADERS += \
 SOURCES += \
     src/ui/ToolManagerPage.cpp \
     src/ui/WorkLogPage.cpp \
+    src/ui/PromptComposerPage.cpp \
+    src/ui/NotebookPage.cpp \
+    src/ui/EditPromptFieldsDialog.cpp \
     src/ui/MainWidget.cpp \
     src/ui/WriteWorkLogDialog.cpp
 
@@ -49,6 +52,10 @@ HEADERS += \
     src/ui/TabPageBase.h \
     src/ui/ToolManagerPage.h \
     src/ui/WorkLogPage.h \
+    src/ui/PromptComposerPage.h \
+    src/ui/NotebookPage.h \
+    src/ui/EditPromptFieldsDialog.h \
+    src/ui/PromptRolePreset.h \
     src/ui/MainWidget.h \
     src/ui/WriteWorkLogDialog.h
 

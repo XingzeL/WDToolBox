@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QCloseEvent>
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include "../core/ToolManager.h"
@@ -10,6 +11,8 @@
 #include "../infrastructure/ConfigFileWatcher.h"
 #include "ToolManagerPage.h"
 #include "WorkLogPage.h"
+#include "PromptComposerPage.h"
+#include "NotebookPage.h"
 
 // main window
 class MainWidget : public QWidget
@@ -22,6 +25,7 @@ public:
 
 protected:
     virtual void resizeEvent(QResizeEvent* event) override;
+    virtual void closeEvent(QCloseEvent* event) override;
 
 private slots:
     void onTabChanged(int index);
@@ -36,8 +40,10 @@ private:
 
     QTabWidget* m_tabCtrl;
 
-    CToolManagerPage* m_toolManagerPage;
-    CWorkLogPage*     m_workLogPage;
+    CToolManagerPage*   m_toolManagerPage;
+    CWorkLogPage*       m_workLogPage;
+    CPromptComposerPage* m_promptComposerPage;
+    CNotebookPage*         m_notebookPage;
 
     CIniConfigReader* m_toolConfigReader;
     CIniConfigReader* m_logConfigReader;
